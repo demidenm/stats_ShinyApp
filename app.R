@@ -78,7 +78,12 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
                                                    the data points different?', blame mvrnorm() or my newb skills. Also, you'll notice that the mean/sd will not be *exactly* the specified mean. 
                                                    The sampling is being done from a random normal distribution, so after sampling the specified span the values in the simulated dataset will bounce 
                                                    around those numbers a tiny bit. Thus, they won't be exact, but approximate is the goal. It's for fun, after all...",
-                                                   style = "font-family: 'times'; font-size:14px")
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 br(),
+                                                 br(),
+                                                 br(),
+                                                 p("Documentation for this Shiny app is available on Github: https://github.com/demidenm/stats_ShinyApp",
+                                                   style = "font-family: 'times'; font-size:12px")
                                              )
                                          )
                                      )),
