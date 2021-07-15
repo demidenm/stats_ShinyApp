@@ -25,6 +25,8 @@ library(plyr)
 library(MASS)
 library(NHANES)
 library(glue)#print variables within string
+library(Superpower)#anova simulate file:///Users/michaeldemidenko/Downloads/0.1_Simulation_Based_Power_Analysis_For_Factorial_ANOVA_Designs.pdf
+library(multcomp) # anova tukey
 
 # UI -- display that adjusts the dimensions of browser
 # Shiny app application guides advanced layouts: https://shiny.rstudio.com/articles/layout-guide.html https://mastering-shiny.org/action-layout.html
@@ -165,8 +167,8 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
                                                  plotOutput(outputId = "t_test_dist_t"),
                                                  plotOutput(outputId = "t_test_dist_t2"),
                                                  br(),
-                                                 p("As mentioned above, consider the denominator of the One Sample t-test formula.
-                                     as.              Below, we can plot the selected *Variable 1* and consider how this reduces in size across range of 
+                                                 p("As mentioned above, consider the denominator of the One Sample t-test formulaas.              
+                                                 Below, we can plot the selected *Variable 1* and consider how this reduces in size across range of 
                                                    N = 5 to 2000.",
                                                    style = "font-family: 'times'; font-size:14px"),
                                                  uiOutput(outputId = "one_t_form_denom"),
@@ -311,12 +313,113 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
 ################################
 ################################
 
+tabPanel("ANOVA",
+         fluidPage(
+             sidebarLayout(position = "right",
+                           sidebarPanel(
+                               h4("Select Parameters to Simulate Data"),
+                               sliderInput("aov_sample", label = "Sample Size",
+                                           min = 5, value = 50, max = 2000,step = 15),
+                               sliderInput("aov1_m", label = "Between(1): Var 1 Mean",
+                                           min = -20, value = 0, max = 20, step = .5),
+                               sliderInput("aov1_sd", label = "Between(1): Var 1 SD",
+                                           min = .01, value = .5, max = 10, step = .1),
+                               sliderInput("aov2_m", label = "Between(1): Var 2 Mean",
+                                           min = -20, value = 0, max = 20, step = .5),
+                               sliderInput("aov2_sd", label = "Between(1): Var 2 SD",
+                                           min = .01, value = .5, max = 10, step = .1),
+                               sliderInput("aov3_m", label = "Between(1): Var 3 Mean",
+                                           min = -20, value = 0, max = 20, step = .5),
+                               sliderInput("aov3_sd", label = "Between(1): Var 3 SD",
+                                           min = .01, value = .5, max = 10, step = .1),
+                               actionButton("run4", "One-Way, Run!", 
+                                            style =  "color: #FFF; background-color: #8B0000; border-color: #FFFF00"),
+                               sliderInput("aov4_m", label = "Between(2): Var 1 Mean",
+                                           min = -20, value = 0, max = 20, step = .5),
+                               sliderInput("aov4_sd", label = "Between(2): Var 1 SD",
+                                           min = .01, value = .5, max = 10, step = .1 ),
+                               sliderInput("aov5_m", label = "Between(2): Var 2 Mean",
+                                           min = -20, value = 0, max = 20, step = .5),
+                               sliderInput("aov5_sd", label = "Between(2): Var 2 SD",
+                                           min = .01, value = .5, max = 10, step = .1),
+                               sliderInput("aov6_m", label = "Between(2): Var 3 Mean",
+                                           min = -20, value = 0, max = 20, step = .5),
+                               sliderInput("aov6_sd", label = "Between(2): Var 3 SD",
+                                           min = .01, value = .5, max = 10, step = .1),
+                               actionButton("run4.1", "Two-by-Three, Run!"),
+                           ),
+                           mainPanel(
+                               h2("One-way & Two-Way ANOVAs"),
+                               p("What does this tab represent? Provide some values to generate a One-way and 2x3 ANOVA.",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               br(),
+                               h4("One-way ANOVA"),
+                               uiOutput(outputId = "aov_SST"), 
+                               p("The Sum of Squares Total (SST) is the sum of squared difference of each score from the grand mean. This is simply the total
+                                 variation of observations in the data relative to the overall mean of the outcome",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               uiOutput(outputId = "aov_SSB"), # subtract individual grp means from grand mean, sqrd diff by grp N
+                               p("The Sum of Scores Between (SSB), or the factor effect, is the sum of squared individual group means (k) minus the grand means. This is
+                                 simply the between-group variation,",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               uiOutput(outputId = "aov_SSW"), # sqrd diff of scores from mean score within group (i.e., SSE)
+                               p("The Sum of Scores Within (SSW), or the sum of squares error (SEE), is the squared differences of scores from within the group/factor (k).
+                                 This is simply the within-group variation",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               uiOutput(outputId = "aov_MSB"),
+                               p("The mean square error between (MSB) is the SSB divided by it's degrees of freedom, which is groups minus one (k - 1)",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               uiOutput(outputId = "aov_MSW"),
+                               p("The mean square error within (MSW) is the SSW divided by it's degrees of freedom, which is total sample minus groups (N - k)",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               uiOutput(outputId = "aov_F_form"),
+                               p("The F-statistic quantifies the differences between population means (Null = no difference between means). 
+                               As such, MSB and MSW would be relatively similar. However, if the means differ, it is expected that the between group
+                                 variability is larger (MSB) than within group variability (MSW). The F-distribution then is the ratio of
+                                 MSB/MSW with the degrees of freedom, k - 1 and N - k.",
+                                 style = "font-family: 'times'; font-size:14px;"),
+                               p("One-ANOVA: three group means, standard deviations and sample size (N) - ",
+                                 style = "font-family: 'times'; font-size:14px; font-weight:bold"),
+                               p("The simulated data for the One-way ANOVA inputs is summarized in the table here:",
+                                 style = "font-family: 'times'; font-size:14px;"),
+                               tableOutput(outputId = "aov_sim_one"),
+                               plotOutput(outputId = "aov_one_plot"),
+                               uiOutput(outputId = "aov_one_formula"),
+                               tableOutput(outputId = "aov_out_one"),
+                               tableOutput(outputId = "aov_out_one_tukey"),
+                               plotOutput(outputId = "aov_SST_plot"),
+                               plotOutput(outputId = "aov_SSB_plot"),
+                               plotOutput(outputId = "aov_SSW_plot"),
+                               h4("Two-way ANOVA"), 
+                               p("A quick note about what inputs impact which outputs. Var1 M/SD alters Short ~ Control; Var2 M/SD alters Short ~ Treatment;
+                                 Var3 M/SD alters Avg ~ Control; Var4 M/SD alters Avg ~ Control; Var5 M/SD alters Tall ~ Control; Var6 M/SD alters Tall ~ Treatment.",
+                                 style = "font-family: 'times'; font-size:14px;"),
+                               p("The simulated data for the Two-way ANOVA for the inputs is summarized in the table here:",
+                                 style = "font-family: 'times'; font-size:14px;"),
+                               tableOutput(outputId = "aov_sim_two"),
+                               uiOutput(outputId = "aov_two_formula"),
+                               tableOutput(outputId = "aov_out_two"),
+                               plotOutput(outputId = "aov_two_plot"),
+                               br(),
+                               br(),
+                               p("Packages used - Plotting: ggplot | Simulating data based on means & correlations: mvnorm() via MASS",
+                                 style = "font-family: 'times'; font-size:10px")
+                           )
+             )
+         )
+),
+
+
+################################
+################################
+################################
+
                                     tabPanel("Regression",
                                              fluidPage(
                                                  sidebarLayout(position = "right",
                                                      sidebarPanel(
                                                          h4("Select Parameters to Simulate Data at Specified Pearson's r"),
-                                                         actionButton("run4", "Onward!", 
+                                                         actionButton("run5", "Onward!", 
                                                                       style =  "color: #FFF; background-color: #8B0000; border-color: #FFFF00"),
                                                          sliderInput("m_reg_sample",
                                                                      label = "Sample (N) for Simulation",
@@ -386,89 +489,57 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
 ################################
 tabPanel("CFA & PCA",
          fluidPage(
-             sidebarLayout(position = "left",
+             sidebarLayout(position = "right",
                            sidebarPanel(
                                h4("Select Parameters to Simulate Data Factor Loads"),
-                               actionButton("run5", "Onward!", 
+                               actionButton("run6", "Simulate Population!", 
                                             style =  "color: #FFF; background-color: #8B0000; border-color: #FFFF00"),
                                sliderInput("sem_sample",
                                            label = "Sample (N) for Simulation",
                                            min = 2, max = 10000, value= 100),
+                               sliderInput("sem_reps",
+                                           label = "Repititions (N) to Generate Population Data",
+                                           min = 1, max = 300, value= 5),
                                selectInput(inputId = "standardize", label = "Standardize Lavaan Output?",
-                                            choices = c('all','latent','FALSE'), selected = "FALSE")
-                               #sliderInput("sem_a1", label = "A1 loading on Factor A",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_a2", label = "A2 loading on Factor A",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_a3", label = "A3 loading on Factor A",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_a4", label = "A4 loading on Factor A",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_b1", label = "B1 loading on Factor B",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_b2", label = "B2 loading on Factor B",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_b3", label = "B3 loading on Factor B",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_b4", label = "B4 loading on Factor B",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_c1", label = "C1 loading on Factor C",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_c2", label = "C2 loading on Factor C",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_c3", label = "C3 loading on Factor C",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_c4", label = "C4 loading on Factor C",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_A_to_B", label = "Cov: Factor A ~~ B",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_A_to_C", label = "Cov: Factor A ~~ C",
-                               #            min = .01, value = 0.5, max = 1, step = .01),
-                               #sliderInput("sem_B_to_C", label = "Cov: Factor B ~~ C",
-                               #            min = .01, value = 0.5, max = 1, step = .01)
+                                            choices = c('all','latent','FALSE'), selected = "FALSE"),
+                               actionButton("run6.1", "Run Specified Sample Model", 
+                                            style =  "color: #FFF; background-color: #ee9a00; border-color: #8B0000")
                            ),
                            mainPanel(
                                h2("CFA/PCA: Simulated Data via CFA Factor Structure"),
-                               p("What does this tab represent? A data is generated via specified parameter values: loadings, correlations, and residual.
-                                 Then, using this data CFA and then PCA models are presented using this simulated data.",
+                               p("What does this tab represent? A dataset is generated via specified population parameters: loadings, covariance, and variances.
+                                 Then, using this data CFA and then PCA (soon to come) models are presented using this simulated data.",
                                  style = "font-family: 'times'; font-size:14px"),
                                br(),
-                               p("Please use the below input field to specify laavan syntax of a model that you wish to generate data from.
+                               p("Please use the below input field to specify laavan syntax of a model that you wish to generate population data for.
                                  If you are unfamiliar with laavan syntax, review tips at: https://lavaan.ugent.be/tutorial/syntax1.html.
                                  As noted at the aforementioned link, '=~' is a measured by indicator used for latent variable definitions; '~'
                                  is 'regressed on' used to specify regression models; '~~' is 'correlated with' indicating covariance in cases of Var1~~Var2,
                                  and residuals in cases of Var1~~Var1; and '~ 1' specifies the intercept.
                                  The following text field and the CFA field below operate similar as they would in Rstudio. Non-laavan strings
                                  will not work. However, lavaan code for starts/constraint of parameters should work. Of note, the text fields start you off,
-                                 but you can build/revise these by adding additional factors, items, covariances, residuals, etc.",
+                                 but you can build/revise these by adding additional factors, items, covariances, residuals, etc. Depending on the sample size, 
+                                 repititions, model complexity and variable numbers, expect delays to (re)generate data.",
                                  style = "font-family: 'times'; font-size:14px"),
                                textAreaInput(inputId = "sim_fact_coeff", 
                                              label = "Input Factors, Items loadings and Correlations for Sim Data",
-                                             value = "\n#Factor item loadings \nFA1 =~ .5*a1 + .34*a2 + .65*a3 \nFA2 =~ .4*b1 + .33*b2 + .33*b3\n#Factor correlation\nFA1 ~~ .3 * FA2
+                                             value = "\n#Factor item loadings \nFA1 =~ .5*a1 + .5*a2 + .5*a3 \nFA2 =~ .5*b1 + .5*b2 + .5*b3\n#Factor correlation\nFA1 ~~ .5*FA2
                                              ", 
                                              width = '100%', rows = 8),
-                               h4("Proposed CFA for Simulation",
+                               h4("Proposed CFA/SEM syntax for Population Data",
                                   style = "font-family: 'times'"),
                                textOutput(outputId = "sim_model"),
-                               #matrixInput("fact_loadings", label = "Factor Loadings", 
-                               #            value = m_factorload, rows = list(
-                               #                editableNames = TRUE, extend = TRUE), 
-                               #            cols = list(
-                               #                    editableNames = TRUE, extend = TRUE)),
-                               #dataTableOutput(outputId = "test_data"),
-                               #matrixInput("fact_corr", label = "Factor Correlations", 
-                               #            value = m_factorcorr, rows = list(
-                               #                editableNames = TRUE, extend = TRUE), 
-                               #            cols = list(
-                               #                editableNames = TRUE, extend = TRUE)),
                                h4("Correlations Among Simulated Data",
                                   style = "font-family: 'times'"),
+                               p("These are the correlations among the correlations in the simulated population papameters averaged
+                                 *across* N number of simulations.",
+                                 style = "font-family: 'times'; font-size:14px"),
                                tableOutput(outputId = "sem_corr"),
-                               h4("Proposed CFA",
+                               h4("Proposed CFA/SEM Sample Model",
                                   style = "font-family: 'times'"),
                                textAreaInput(inputId = "cfa_model", 
                                              label = "Input lavaan() model for Proposed CFA",
-                                             value = "\n#Factor item loadings \nFA1 =~ .5*a1 + .34*a2 + .65*a3 \nFA2 =~ .4*b1 + .33*b2 + .33*b3\n#Factor correlation\nFA1 ~~ FA2
+                                             value = "\n#Factor item loadings \nFA1 =~ a1 + a2 + a3 \nFA2 =~ b1 + b2 + b3\n#Factor correlation\nFA1 ~~ FA2
                                              ", 
                                              width = '100%', rows = 8),
                                tableOutput(outputId = "sem_table"),
@@ -497,7 +568,7 @@ local_server <- function(input, output, session){
     
 
     
-# simulation data based on user providing 3 means & 3 sds
+# T- test: simulation data based on user providing 3 means & 3 sds
 
     data <- eventReactive(input$run1, {
         data<- data.frame(var1 = rnorm(n = input$sample,
@@ -568,10 +639,51 @@ local_server <- function(input, output, session){
         do.call(rbind, datalist)
     })
 
+################################################################      
+# Simulation sample for ANOVAs
     
+    aov_one <- eventReactive(input$run4, {
+        set.seed(1)
+        
+        dat_one <- ANOVA_design(
+            design = "3b", 
+            n = c(input$aov_sample),
+            mu = c(input$aov1_m, input$aov2_m,input$aov3_m), 
+            sd = c(input$aov1_sd,input$aov2_sd,input$aov3_sd),
+            labelnames = c("Height", "Short", "Avg", "Tall"),
+            plot = FALSE,
+            r = .05
+        )
+        
+        data.frame(dat_one$dataframe)
+    }
+    )
+    
+    aov_two <- eventReactive(input$run4.1, {
+        set.seed(1)
+        
+        dat_two <- ANOVA_design(
+            design = "3b*2b", 
+            n = c(input$aov_sample),
+            mu = c(input$aov1_m, input$aov2_m,input$aov3_m,
+                   input$aov4_m, input$aov5_m,input$aov6_m), 
+            sd = c(input$aov1_sd,input$aov1_sd,input$aov1_sd,
+                   input$aov4_sd,input$aov5_sd,input$aov6_sd),
+            labelnames = c("Height", "Short", "Avg", "Tall",
+                           "Condition", "Control", "Treatment"),
+            plot = FALSE,
+            r = .05
+            )
+            
+            data.frame(dat_two$dataframe)
+    }
+    )
+    
+    
+
 ################################################################      
 # Simulation sample with THREE variables reflective pre specified correlation for multiple regression
-    m_reg_data <- eventReactive(input$run4, {
+    m_reg_data <- eventReactive(input$run5, {
         set.seed(1)
         if (input$outlier=="None") {
             m_reg_df <-
@@ -657,36 +769,15 @@ local_server <- function(input, output, session){
         sim_cfa_text()
     })
     
-    sem_data <- eventReactive(input$run5, {
+    sem_data <- eventReactive(input$run6, {
         set.seed(1) 
         model_population <-paste0(sim_cfa_text())
         
-        model_cfa <- gsub("#Factor corr.*","", paste0(sim_cfa_text()))
+        sim <- sim(nRep = input$sem_reps, model = "lavaan", n = input$sem_sample, 
+                generate = model_population, std.lv = TRUE, lavaanfun = "sem", 
+                dataOnly=T, meanstructure = TRUE, seed=123)
         
-        #model_population <- glue("
-        #A =~ {input$sem_a1}*a1 + {input$sem_a2}*a2 + {input$sem_a3}*a3 + {input$sem_a4}*a4
-        #B =~ {input$sem_b1}*b1 + {input$sem_b2}*b2 + {input$sem_b3}*b3 + {input$sem_b4}*b4
-        #C =~ {input$sem_c1}*c1 + {input$sem_c2}*c2 + {input$sem_c3}*c3 + {input$sem_c1}*c4
-    #
-        #A~~ {input$sem_A_to_B}*B
-        #A~~ {input$sem_A_to_C}*C
-        #B~~ {input$sem_B_to_C}*C
-        #")
-        #
-        #model_cfa<- glue("
-        #A =~ {input$sem_a1}*a1 + {input$sem_a2}*a2 + {input$sem_a3}*a3 + {input$sem_a4}*a4
-        #B =~ {input$sem_b1}*b1 + {input$sem_b2}*b2 + {input$sem_b3}*b3 + {input$sem_b4}*b4
-        #C =~ {input$sem_c1}*c1 + {input$sem_c2}*c2 + {input$sem_c3}*c3 + {input$sem_c1}*c4
-        #
-        #A~~ B
-        #A~~ C
-        #B~~ C
-        #")
-        
-        sim_data <- as.data.frame(
-            sim(nRep = 1, model = model_cfa, n = input$sem_sample, 
-                generate = model_population, std.lv = TRUE, lavaanfun = "cfa", 
-                dataOnly=T, meanstructure = TRUE, seed=123))
+        sim_data <- data.frame(aaply(laply(sim, as.matrix), c(2,3), mean))
     }
     )
     
@@ -772,32 +863,12 @@ local_server <- function(input, output, session){
             theme_minimal()
     })
     
-   # output$t_test1 <- renderPrint({
-   #     onet_1 <- t.test(x = data()$var1, 
-   #                      mu = input$pop_mean,
-   #                      conf.level = input$alpha) 
-   #     
-   #     cat("t-stat:", round(as.numeric(onet_1$statistic),2),
-   #         "DF:", round(as.numeric(onet_1$parameter),3),
-   #         "p-value: ", as.numeric(onet_1$p.value))
-   # })
-    
-   # output$t_test2 <- renderPrint({
-   #     onet_2 <- t.test(x = data()$var2,
-   #                      mu = input$pop_mean,
-   #                      conf.level = input$alpha) 
-   #     
-   #     cat("t-stat:", round(as.numeric(onet_2$statistic),2),
-   #         "DF:", round(as.numeric(onet_2$parameter),3),
-   #         "p-value:", as.numeric(onet_2$p.value))
-   # })
     
     output$t_test_dist_t <- renderPlot({
         data <- data()
         onet_1 <- t.test(x = data()$var1,
                          mu = input$pop_mean,
                          conf.level = 1-input$alpha)
-        
         plot(onet_1)
     }
     )
@@ -807,14 +878,12 @@ local_server <- function(input, output, session){
         onet_2 <- t.test(x = data()$var2,
                          mu = input$pop_mean,
                          conf.level = 1-input$alpha)
-        
         plot(onet_2)
     }
     )
     
     
     output$one_t_form_denom <- renderUI({
-        
         withMathJax(
             print(paste0("$$ denominator = {s//\\sqrt{n}} $$"))
         )
@@ -876,16 +945,6 @@ local_server <- function(input, output, session){
         plot_2grp_corr / plot_2grp_means + plot_layout(guides = 'collect')
     }) 
     
-    
-    #output$two_mean_test1 <- renderPrint({
-    #    data <- data()
-    #    two_mean_t <- t.test(data$grp_values ~ data$groups) 
-    #    
-    #    cat("Two Mean t-stat:", round(as.numeric(two_mean_t$statistic),2),
-    #        "DF:", round(as.numeric(two_mean_t$parameter),3),
-    #        "p-value:", two_mean_t$p.value,
-    #        "Confidence Interval", round(two_mean_t$conf.int[1],3), "to", round(two_mean_t$conf.int[2],3))
-    #})
     
     output$two_mean_table <- function(){
         data <- data()
@@ -986,26 +1045,6 @@ local_server <- function(input, output, session){
                           full_width = F, font_size = 12, html_font = 'Times') 
     }
     
-   # output$corr_test1 <- renderPrint({
-   #     co_t1 <- cor.test(x = sim_corr()$X1, 
-   #                       y = sim_corr()$X2,
-   #                       method = "pearson")
-   #     
-   #     cat("r: ",
-   #         round(as.numeric(co_t1$estimate),2),
-   #         "and p-value: ",
-   #         as.numeric(co_t1$p.value))
-   # })
-   # 
-   # output$corr_test2 <- renderPrint({
-   #     co_t2 <- cor.test(x = sim_corr_2()$X1, 
-   #                       y = sim_corr_2()$X2,
-   #                       method = "pearson")
-   #     cat("r: ",
-   #         round(as.numeric(co_t2$estimate),2),
-   #         "and p-value: ",
-   #         as.numeric(co_t2$p.value))
-   # })
     
     output$corr_test3 <- function(){
         co_t1 <- cor.test(x = sim_corr()$X1, 
@@ -1076,6 +1115,210 @@ local_server <- function(input, output, session){
         
     })
 
+##########################
+### ANOVA
+##########################
+    
+    output$aov_one_formula <- renderUI({
+        fit<-aov(y ~ Height, data = aov_one()) 
+        eq <- paste0(extract_eq(fit))
+        withMathJax(
+            print(paste0("$$",eq,"$$"))
+        )
+    })
+    
+    
+    output$aov_SST <- renderUI({
+        withMathJax(
+            print(paste0("$$ SS_{Total}= \\sum\\limits_{j=1}^{k}\\sum\\limits_{i=1}^{n_i} \\left(x_{ij} - \\overline{X}\\right)^2 $$"))
+        )
+    })
+
+    
+    output$aov_SSB <- renderUI({
+        withMathJax(
+            print(paste0("$$ SS_{Between} = \\sum\\limits_{j=1}^{k}n_j  \\left(\\overline{x_j} - \\overline{X}\\right)^2 $$"))
+        )
+    })
+    
+    output$aov_SSW <- renderUI({
+        withMathJax(
+            print(paste0("$$ SS_{Within} = \\sum\\limits_{j=1}^{k}\\sum\\limits_{i=1}^{n_j} \\left(x_{ij} - \\overline{x}_{j}\\right)^2 $$"))
+        )
+    })
+    
+    output$aov_MSB <- renderUI({
+        withMathJax(
+            print(paste0("$$ MS_{Between} = \\frac {SS_{Between}}{k - 1} $$"))
+        )
+    })
+    
+    output$aov_MSW <- renderUI({
+        withMathJax(
+            print(paste0("$$ MS_{Within} = \\frac {SS_{Within}}{n - k} $$")) # within / error
+        )
+    })
+    
+    output$aov_F_form <- renderUI({
+        withMathJax(
+            print(paste0("$$ F_{stat} =  \\frac {MS_{Between}}{MS_{Within}} $$"))
+        )
+    })
+
+    output$aov_sim_one <- function() {
+        aov_one() %>% 
+            group_by(Height) %>% 
+            dplyr::summarise("Group N" = n(),
+                             "Group Mean" = mean(y),
+                             "Group SD" = sd(y)) %>% 
+            kable() %>% 
+            kable_styling("striped",
+                          full_width = F, font_size = 12, html_font = 'Times')
+    }
+    
+    output$aov_out_one <- function(){
+        anova <- aov(y ~ Height, data = aov_one())
+        
+        broom::tidy(anova) %>% 
+            kable() %>% 
+            kable_styling("striped",
+                          full_width = F, font_size = 12, html_font = 'Times')
+    }
+    
+    output$aov_out_one_tukey <- function(){
+        anova <- aov(y ~ Height, data = aov_one())
+        
+        summary(glht(anova, linfct = mcp(Height = "Tukey"))) %>% 
+            broom::tidy() %>% 
+            kable() %>% 
+            kable_styling("striped",
+                          full_width = F, 
+                          font_size = 12, 
+                          html_font = 'Times')
+    }
+    
+    
+    
+    output$aov_one_plot <- renderPlot({
+        aov_one() %>% 
+            ggplot(aes(x = y, y = Height, colour = Height)) +
+            geom_boxplot()+
+            theme_minimal()
+    })
+    
+    
+    output$aov_SST_plot <- renderPlot({
+        aov_one <- aov_one()
+        
+        ## Plot SST
+        SST<- round(sum((aov_one$y - mean(aov_one$y))^2),2)
+        aov_one %>%
+            ggplot(aes(x = "", y = y, colour = Height)) +
+            geom_point(aes(x = "", y = y), position = "jitter",
+                       size =5/input$aov_sample) +
+            annotate("label", x = "", y = mean(aov_one$y)*2, 
+                     label = paste0("Sum Sq. Total: ",SST))+
+            geom_hline(yintercept = mean(aov_one$y), linetype = "solid",
+                       color = "red", size = .5)+
+            labs(title = "Fig 1. Sum of Squares Total  (Residuals)",
+                 caption = "Red Line = Mean of Outcome")+
+            theme(text = element_text(size = 14, family = "times"))+
+            theme_minimal()
+    })
+    
+    output$aov_SSW_plot <- renderPlot({
+        aov_one <- aov_one()
+        
+        ## Plot SST
+        SSW <-
+            aov_one %>% 
+            group_by(Height) %>% 
+            dplyr::mutate(grp_mean = mean(y)) %>% 
+            dplyr::mutate(SSW = (y - grp_mean)^2) %>%
+            group_by() %>% 
+            dplyr::summarise(SSW = sum(SSW)) %>% 
+            round(1)
+        
+        aov_one %>% 
+            ggplot(aes(x = Height, y = y, colour = Height)) +
+            geom_boxplot(aes(x = Height, y = y))+
+            geom_point(aes(x =  Height, y = y), position = "jitter", size =1) +
+            annotate("label", x = "Height_Short", y = mean(aov_one$y)*2,
+                     label = paste0("Sum Sq. Within: ",SSW))+
+            labs(title = "Fig 3. Sum of Squares Within (Error)")+
+            theme(text = element_text(size = 12, family = "times"))+
+            theme_minimal()
+        
+    }
+    )
+    
+    output$aov_SSB_plot <- renderPlot({
+        aov_one <- aov_one()
+        
+        ## Plot SSB
+        SSB<- aov_one %>% 
+            dplyr::select(y, Height) %>% 
+            mutate(grand_mean = mean(y)) %>% 
+            group_by(Height) %>% 
+            dplyr::summarize(n = n(),
+                             factor_mean = mean(y),
+                             grand_mean = mean(grand_mean)) %>% 
+            mutate(SS_between = round(n * (factor_mean - grand_mean)^2),2) %>% 
+            pull(SS_between) %>% 
+            sum()
+        
+        aov_one %>%
+            ggplot(aes(x = Height, y = y)) +
+            geom_boxplot(aes(y = y, group = Height, colour = Height))+
+            geom_point(aes(x = Height, y = y, colour = Height), size =5/input$aov_sample) +
+            annotate("label", x = "Height_Short", 
+                     y = mean(aov_one$y)*2, 
+                     label = paste0("Sum Sq. Between: ",SSB))+
+            geom_hline(yintercept = mean(aov_one$y), linetype = "solid",
+                       color = "red", size = .5)+
+            labs(title = "Fig 2. Sum of Squares Between (Factor)",
+                 caption = "Red Line = Mean of Outcome")+
+            theme(text = element_text(size = 12, family = "times"))+
+            theme_minimal()
+    })
+    
+   
+    output$aov_two_formula <- renderUI({
+        fit<-aov(y ~ Height + Condition, data = aov_two()) 
+        eq <- paste0(extract_eq(fit))
+        withMathJax(
+            print(paste0("$$",eq,"$$"))
+        )
+    })
+    
+    output$aov_sim_two <- function() {
+        aov_two() %>% 
+            group_by(Height, Condition) %>% 
+            dplyr::summarise("Group N" = n(),
+                             "Group Mean" = mean(y),
+                             "Group SD" = sd(y)) %>% 
+            kable() %>% 
+            kable_styling("striped",
+                          full_width = F, font_size = 12, html_font = 'Times')
+    }
+    
+    output$aov_out_two <- function(){
+        anova <- aov(y ~ Height + Condition, data = aov_two())
+        
+        broom::tidy(anova) %>% 
+            kable() %>% 
+            kable_styling("striped",
+                          full_width = F, font_size = 12, html_font = 'Times')
+    }
+    
+    output$aov_two_plot <- renderPlot({
+        
+        aov_two() %>% 
+            ggplot(aes(x = y, y = Height, colour = Condition)) +
+            geom_boxplot()+
+            theme_minimal()
+    })
+    
     
 ##########################
 ### Linear Regression
@@ -1305,7 +1548,7 @@ local_server <- function(input, output, session){
     }
     
     
-    cfa_data <- eventReactive(input$run5, {
+    cfa_data <- eventReactive(input$run6.1, {
         set.seed(1) 
 
         model_cfa <-paste0(cfa_text())
