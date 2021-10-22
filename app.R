@@ -56,10 +56,10 @@ options(scipen=999) # turning off scientific notiation so extremely small values
 
 
 
-UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
+UserInferface <- navbarPage("Ooo, So Shiny!",
                             collapsible = TRUE, 
                             inverse = TRUE, 
-                            theme = shinytheme("united"),
+                            theme = shinytheme("simplex"),
 
                             tabPanel("Intro",
                                      fluidPage(
@@ -69,23 +69,32 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
                                                               style =  "color: #FFF; background-color: #8B0000; border-color: #FFFF00;")
                                              ),
                                              mainPanel(
-                                                 h2("New Shiny, who dis?"),
-                                                 p("This pilot shiny app is a work-in-progress.",
+                                                 h2("Another day another shiny stat"),
+                                                 p("This shiny app is a work-in-progress. Last updated October 21, 2021",
                                                    style = "font-family: 'times'; font-size:14px"),
-                                                 p("Its purpose? To play with data. There are several tabs, select each tab to simulate some data based one provided input, such as:
-                                                 mean, standard deviation, Pearson's r and/or sample size. The app works best after you select parameters and click the 'Onward!' button. 
-                                                   This buttoon keeps the lights running. Whether it's to visualize the effect of the crud factor (see Meehl, 1990), variance, N at 
-                                                   which a correlation stabilizes (see Schönbrodt & Perugini2013), or the effect of an outlier, click a tab, play around with some parameters, 
-                                                   and see how some outputs change. Of note: The data will be simulated each time a sample size value is changed. So if you're wondering, 'why are 
-                                                   the data points different?', blame mvrnorm() or my newb skills. Also, you'll notice that the mean/sd will not be *exactly* the specified mean. 
+                                                 p("Its purpose? To play with data. There are several tabs, select each tab to simulate some data based one the input provided, such as:
+                                                 means, standard deviations, Pearson's r and/or sample size.",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("The app works best after you select parameters and click the 'Onward!' button. This button keeps the lights running. 
+                                                 Whether it's to visualize the effect of the crud factor (see Meehl, 1990), variance/standard deviation (SD), sample (N) at which a correlation stabilizes 
+                                                 (see Schönbrodt & Perugini (2013)), or the effect of an outlier, click a tab, play around with some parameters and see how 
+                                                 some outputs change. Keep in mind, with the exception of when outliers are included, the data is generated using a 
+                                                   normal distribution. Often our data -- in particular in the social sciences -- has values that are densely packed around the 
+                                                   the mean (leptokurtic, or positive kurtosis), flatly distributed (platykurtic, or negative kurtosis), heavily weighted distribution left to 
+                                                   mean values (positive skew), heavily weighted distribution to the right of the mean (negative skew), or zero-inflated values.
+                                                   Most simulations DO NOT include the effects of this on models. In future updates, I hope to include tabs on this topic",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("Of note: The data will be simulated each time a sample size value is changed. If you're wondering, why is there so much white space between
+                                                 text? This will change once you click the button to run the appropriate simulation. You'll notice that the mean/sd will not be *exactly* the specified mean.
                                                    The sampling is being done from a random normal distribution, so after sampling the specified span the values in the simulated dataset will bounce 
-                                                   around those numbers a tiny bit. Thus, they won't be exact, but approximate is the goal. It's for fun, after all...",
+                                                   around those numbers a tiny bit. Furthermore, each time the sample N is changed,
+                                                   the data set is resimulated. Thus, they won't be exact, but approximate is the goal. It's for fun, after all...",
                                                    style = "font-family: 'times'; font-size:14px"),
                                                  br(),
                                                  br(),
                                                  br(),
                                                  p("Documentation for this Shiny app is available on Github: https://github.com/demidenm/stats_ShinyApp",
-                                                   style = "font-family: 'times'; font-size:12px")
+                                                   style = "font-family: 'times'; font-size:10px")
                                              )
                                          )
                                      )),
@@ -100,42 +109,50 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
                                                  sliderInput("sample", label = "Sample Size",
                                                              min = 5, value = 50, max = 2000, step = 15),
                                                  sliderInput("pop_mean", label = "Population Mean (e.g., H0)",
-                                                             min = -20, value = 0, max = 20, step = .5),
+                                                             min = 0, value = 0, max = 30, step = .5),
                                                  sliderInput("alpha", label = "Alpha α (Type I error rate)",
                                                              min = 0.0001, value = .05, max = .20, step = .025),
                                                  sliderInput("mean1", label = "Var  *1* Mean ",
-                                                             min = -20, value = 5, max = 20, step = .5),
+                                                             min = 0, value = 5, max = 30, step = .5),
                                                  sliderInput("sd1",  label = "Var *1* St Dev",
                                                              min = 0.1, value = 3, max = 25, step = .5),
                                                  sliderInput("mean2", label = "Var *2* Mean",
-                                                             min = -20, value = 5, max = 20, step = .5 ),
+                                                             min = 0, value = 5, max = 30, step = .5 ),
                                                  sliderInput("sd2", label = "Var *2* St Dev",
                                                              min = 0.1, value = 3, max = 25, step = .5),
-                                                 sliderInput("grp_m1", label = "Group01 Mean",
-                                                             min = -20, value = 5, max = 20, step = .5),
-                                                 sliderInput("grp_sd1",  label = "Group01 St Dev",
+                                                 sliderInput("grp_m1", label = "Group A Mean",
+                                                             min = 0, value = 5, max = 30, step = .5),
+                                                 sliderInput("grp_sd1",  label = "Group A St Dev",
                                                              min = 0.1, value = 3, max = 25, step = .5),
-                                                 sliderInput("grp_m2", label = "Group02 Mean",
-                                                             min = -20, value = 5, max = 20, step = .5 ),
-                                                 sliderInput("grp_sd2", label = "Group02 SD",
+                                                 sliderInput("grp_m2", label = "Group B Mean",
+                                                             min = 0, value = 5, max = 30, step = .5 ),
+                                                 sliderInput("grp_sd2", label = "Group B SD",
                                                              min = 0.1, value = 3, max = 25, step = .5)
                                                  
                                              ),
                                              mainPanel(
-                                                 h2("Distribution & Effect for Mean-SD-Sample"),
-                                                 p("What is the purpose of this tab? Based on the means, standard deviations, and sample size provided, 
-                                                 a normally distributed dataset is generated. This data is then used to plot a boxplot of the two variables to visualize means/sd.
-                                                 A distribution of this data and the population mean is provided. Then, a one sample t-test is run on each of the two variables with the
-                                                 related t-distribution. Then, based on the means and standard deviations selected for two groups, data is simulated. This data is plotted and a two sample
-                                                 independent t-test is performed. In general, this tab is to represent changes in the values based on: Mean, Standard Deviation, Sample Size, Alpha, 
-                                                   and Population Mean (hypothesized null).",
+                                                 h2("Description: Distribution & Effect for Mean-SD-Sample"),
+                                                 p("What is the purpose of this tab? Based on the means, standard deviations (SD), and sample size (N) that you selected 
+                                                   (or their defaults), a normally distributed dataset is generated. This data is then used to plot a boxplot of the two 
+                                                   variables to visualize means/SD to see how data points are distributed relative to the mean. Then, the distribution of 
+                                                   a single variable and the population mean is plotted. After which, we compute a One-Sample t-test on the mean(s) and SD(s). 
+                                                   Thereafter, using our simulated data we consider the unique group means for the combined means of two variables. 
+                                                   This data is plotted, and a Two-Sample independent t-test is conducted. For both the One-Sample and Two-Sample t-test 
+                                                   their respective formulates are provided and the effect of sample size is considered. In general, this tab is to represent 
+                                                   changes in the values based on: Mean, Standard Deviation, Sample Size, Alpha and Population Mean (which is often 
+                                                   hypothesized to be nil).",
                                                    style = "font-family: 'times'; font-size:14px"),
-                                                 p("Note: To run/rerun, simply specify your values and click 'Onward!'",
+                                                 p("Note: To run/rerun, simply specify your values and click 'Onward!'. White space will remain until data can be 
+                                                   simulated by pushing the 'Onward!' button and the respective Figures/Tables are populated",
                                                    style = "font-family: 'times'; font-size:10px; font-style: italic"),
                                                  br(),
                                                  br(),
-                                                 p("The boxplots in the below figures, Figure 1 and Figure 2, represent the means and standard deviations selections.
-                                                 Toggle the values observe the central tendency of data with a larger N.",
+                                                 h4("Simulated output",
+                                                    style = "font-family: 'times'"),
+                                                 p("First, we started by plotting two boxplots for the simulated Var1 and Var2 in Figures 1 and Figure 2. The boxplots 
+                                                   below represent the means and SDs for Var 1 and Var 2. You can see the data points normally distributed around the 
+                                                   mean. As you toggle the sample size, you'll notice the central tendency arise. However, the central tendency is more 
+                                                   obvious below in Figure 3.",
                                                    style = "font-family: 'times'; font-size:14px"),
                                                  br(),
                                                  fluidRow(
@@ -146,30 +163,85 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
                                                  br(),
                                                  h4("Plotted Distribution: Variable 1",
                                                    style = "font-family: 'times'"),
-                                                 p("Figure 3 reflects the sample mean distribution +/- 1, 2, and 3 standard deviations relative to that mean. 
-                                                 For reference, the selected population mean (that is used in the one sample t-test) is also plotted in this figure. 
-                                                 Since the data is resampled for this normal distribution density plot the mean varies a touch.",
+                                                 p("Here, Figure 3 reflects the simulated distribution of Var 1 (based on specified mean) and 
+                                                   +/- 1, 2 and 3 standard deviations relative to this mean. For reference, the specified population mean 
+                                                   (that is used in the One-Sample t-test below) is also plotted in the figure. Since the data is resampled 
+                                                   for this normal distribution (i.e., density plot) the mean will vary a touch. One thing to notice from 
+                                                   the normal distribution is where most of the data falls. For example, approx. 68% of the observations 
+                                                   are between -/+1 SDs of the sample mean, or the dashed blue line, and approx. 95% of observations are 
+                                                   within -/+ 2 SDs of the sample mean, or the green line. Then, approx. 5% of the observations are beyond 
+                                                   the -/+2 SD line. These add up to the cumulative distribution function for the normal distribution and 
+                                                   may help in calculating outliers, which is the occurrence of extreme and unexpected values.",
                                                    style = "font-family: 'times'; font-size:14px"),
                                                  plotOutput(outputId = "t_test_dist"),
                                                  h4("One Sample t-test: Formula & Effect of Parameters",
                                                    style = "font-family: 'times'"),
-                                                 p("Keeping in mind how the data shifts around the mean, we can consider the one sample t-test forumla.
-                                                 To simplify the formula, our signal is in the numerator (what we want maximize) and the noise is in the denominator 
-                                                 (what we want to limit). Maximizing the signal-to-noise ratio is central experimental psych (Cronbach, 1957). 
-                                                 To maximize the signal we can increase the sample mean in comparison to the population mean (mu). Another way to increase
-                                                 the signal is by minimizing the noise, or our standard deviation/error. This can be done by reducing variability 
-                                                 *between* subjects or measurement error. The error can also be minimized by a larger N, as the standard deviation is scaled by sample size. I try to provide an 
-                                                 example of how the SD is reduced with increased sample size in Figure 4. You can directly observe the change in the t-statistic and p-value below as you toggle the Var1/Var2 sample mean, standard deviation, sample size, 
-                                                   and the population mean.",
+                                                 p("Keeping in mind how the data shifts around the mean, we can now consider the One-Sample t-test formula. If you ever came 
+                                                   across the language, “So-and-so sample demonstrated a response (Mean = 2.9, SD = 2.0) that was significantly greater than the null 
+                                                   t(49) = 49/0, p < .00001”, then you had experience a One-Sample t-test. The purpose of the One-Sample t-test is to estimate a 
+                                                   t-value (t) based on the population mean (μ) and the sample mean (m) relative to proportion of variance/SD (s) scaled by 
+                                                   the population size (√n)",
                                                    style = "font-family: 'times'; font-size:14px"),
                                                  uiOutput(outputId = "one_t_formula"),
+                                                 p("For example, say I am a grocery store manager that is interested in creating a sign that'll implicitly motivate customers to stop 
+                                                   at a particular location inside the store. We're not trying to compare the effect of one sign over the other *yet*, but rather 
+                                                   we are curious whether there is any effect of the sign in this part of the store. We created a sign and machine learning 
+                                                   (i.e., a research assistant with a stopwatch) that determines when a participant (customer) enters the defined vicinity using their 
+                                                   stop watch calculates (approximately) how long they stopped for. After a few long weeks and a really tired research assistant and worn 
+                                                   out stop watch, we will have a dataset of length N sample of participants that stopped for an average time (Var 1 mean) and these 
+                                                   participants varied in their stopping time to some degree (Var 1 St Dev). Unless we have a prior estimate of how long populations 
+                                                   randomly stop in this given area, we will assume that population mean stopping time is zero (implicit assumption in a lot of scientific research). 
+                                                   So, we can propose the null (H0) hypothesis, that there would be no difference between how long people normal stop in this space (zero/null) 
+                                                   and with our sign there. The alternative (H1) hypothesis would be the opposite, that we expect a significant difference between the population 
+                                                   mean and our observed mean with the sign there. ",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("To obtain our estimate of significance we would use the One-Sample t-test. To simplify the formula above, we would like to obtain a 
+                                                   t-statistic that compares the signal in the numerator (what we want to maximize, stopping at sign) relative to the noise in the denominator 
+                                                   (what we want to limit, the variability between people). This maximization of the signal-to-noise ratio is central to experimental psychology 
+                                                   (Cronbach, 1957). To maximize the signal, we can increase the sample mean in comparison to the population mean (μ). Another way to increase 
+                                                   the signal is by minimizing the noise, or our SD. This can be done by reducing variability *between* subjects or measurement error. 
+                                                   The error can also be minimized by a larger N, as the SD is scaled by sample size (see Figure 4 for example).",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  tableOutput(outputId = "one_t_table"),
+                                                 p("The above table provides the sample size (should be equal), means and SDs you input into the fields on the upper right hand. 
+                                                   Since we're working with a One-sample t-test, let's pay attention to Var1 for now. You can follow along by entering each value 
+                                                   into the One-Sample t-test formula manually (since it’s relatively easy). Such that, for the formula your ‘Var1 Mean’ will replace 
+                                                   'm' and ‘Var 1 SD’ will replace ‘s’, your ‘sample size’ will replace ‘n’ and the population mean you entered will replace 'μ'. 
+                                                   For simplicity purposes, I have a Probability density plot for a two-tailed t-test below that includes your t-statistic (t), 
+                                                   your degrees of freedom (df), which are the number of observations minus 1 (n-1) and the p-value. In the One-Sample t-test 
+                                                   probability density plot below, you will see the critical cut off (alpha/p-val) of 95% (p < .05) and the blue dot represents 
+                                                   the t-statistics from our variable. If you did your math correctly, your t-statistic should be the same. Unless something went wrong… 
+                                                   and it’s not unknown for things to go wrong. By pulling up a t-distribution, you can find the provided significant, too. You simply 
+                                                   identify the t-statistic, the degrees of freedom (n – 1) and one-tailed or two-tailed. ",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("What we can gather from this is the significance of our effect for *this* sample and its size and variability. This significance, again, 
+                                                   is relative to our population mean. So, while it is common to say that the population mean is zero, this often is not true for many scenarios. 
+                                                   For instance, we may find that people in some parts of the store tend to stop for no reason, so the population mean may be, say, 11 seconds. 
+                                                   So, if we had known that the population mean was closer to 11 seconds, but assumption that a population mean of zero would be incorrect and 
+                                                   thus provide the wrong conclusion. We may, in effect (pun very much intended), find significance when in fact there may be none if we were to 
+                                                   use a specific (point estimate) versus a zero (point null) estimate. This topic has been extensively discussed and is a point of contention 
+                                                   in several statistical tests.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  plotOutput(outputId = "t_test_dist_t"),
+                                                 p("It’s worthwhile to look at the probability densities for the t-statistics. Given that you have two variables (Var 1 & Var 2) 
+                                                   that you can adjust the mean and SD for, play around with these parameters. Look at the above T-test formulate again and observe 
+                                                   how the 'significance' of the effect sways based on these values. You can compare the above plot for Var 1 and the below plot for 
+                                                   Var 2. While these tests can tell us something meaningful, if we’re not thoughtful when using them we may misunderstand the 
+                                                   meaningfulness of an effect because we are at times consumed by finding that “p < .05” golden ticket.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  plotOutput(outputId = "t_test_dist_t2"),
                                                  br(),
-                                                 p("As mentioned above, consider the denominator of the One Sample t-test formulaas.              
-                                                 Below, we can plot the selected *Variable 1* and consider how this reduces in size across range of 
-                                                   N = 5 to 2000.",
+                                                 p("I mentioned earlier to consider the denominator of the One Sample t-test formula. If you messed around with different 
+                                                   combinations of mean, SD and sample size (N) values, you may have noticed an important trend: the larger the sample, the 
+                                                   larger t-statistic and thus the larger the p-value. This represents the issue of the ‘crud factor’, whereby the larger number 
+                                                   of participants the lower the critical threshold for significant is. Thus, larger N provide significance for small effects. 
+                                                   Then you reach the point of deciphering, is an effect this tiny important? Sometimes, sadly, the answer is a clear: no. 
+                                                   Other times it’s a resounding… maybe?",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("Here the effect of the crud fact is in essence achieved by the SD (our variability) being shrunk by the N. To demonstrate this, 
+                                                   we can take the mean of Var 1 and see how the N proportionally reduces the influence of the SD from the denominator on the numerator. 
+                                                   In term of fractions, if we make the denominator SMALLER we can make the result of the numerator LARGER. Figure 4 shows how the 
+                                                   SD shrinks in magnitude from N = 5 to 2000.",
                                                    style = "font-family: 'times'; font-size:14px"),
                                                  uiOutput(outputId = "one_t_form_denom"),
                                                  plotOutput(outputId = "t_test_reduc_sd_1"),
@@ -177,25 +249,67 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
                                                  br(),
                                                  h4("Two Independent Group Means",
                                                    style = "font-family: 'times'"),
+                                                 p("For now, we have focused on the One-Sample t-test, which considers a mean and SD for one sample/group of subjects. However, say we wanted to consider 
+                                                 the difference BETWEEN groups, so two means and SDs. Going back to our earlier example from the grocery store (keep coming back to the grocery example, 
+                                                 trying to remind myself to get groceries…). Let's say that we wanted to determine whether there was a meaningful difference in stopping by signs that 
+                                                 were placed at two stores in different states, say Dallas, Texas and Lincoln, Nebraska. So now we have the same sign, we have the same grocer, same part 
+                                                 of the store, but would like to know whether there is [in simple terms] something meaningfully different between the store in Dallas and Lincoln. If our 
+                                                 groups consist of independent samples and variability that is similar (i.e., sample of people in each group are unique and SD is comparable), 
+                                                 we can conduct a Two-Sample t-test.
+                                                   we hade two groups. ",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  uiOutput(outputId = "two_mean_t_formula"),
+                                                 p("As we saw for the One-sample t-test two means in the numerator, we see the same in the Two-Sample t-test. However, unlike the One-sample t-test 
+                                                   in the Two-Sample t-test these are both samples that we have observed data for, Sample A and Sample B. So, for both samples, unlike the population, 
+                                                   we have their actual means but ALSO their SD(s). Effectively, we can follow similar procedures to compare the sample means to determine the difference, 
+                                                   or effect, between groups.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  tableOutput(outputId = "two_mean_table"),
+                                                 p("Above is a Table that provides information about simulated data for our groups (A & B), their sample size (N), group means and group SDs. 
+                                                   The means for Var 1 and Var 2 are simulated in a manner that will provide you with specified means for Group A and Group B. ",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  plotOutput(outputId = "two_mean_dist"),
+                                                 p("Figure 5 are boxplots with the mean and SD for each group (A & B). Like Figure 1 & 2, you can observe the spread of the raw data points 
+                                                   that are simulated for each group. Then, Figure 6 is a visual representation how ignoring groups and looking at variables alone may 
+                                                   provide a different association (black line) amongst Var1 and Var2 than if you were to consider those associations across groups 
+                                                   (green and yellow). In this scenario the contrast may now be as stark, but as you toggle Var 1, Var 2, Group A and Group B, 
+                                                   you may notice distinct differences in the association between Var1 and Var1. For example, when the groups are combined the association 
+                                                   may be zero, but when separated, the association may be positive for one group and negative for the other. More on correlations in the 
+                                                   ‘Correlation’ and “Stability of Effect’ tabs.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  plotOutput(outputId = "two_mean_test1"),
+                                                 p("As we did for the One-Sample t-test, we again can acquire the t-statistic from our formula and determine the p-value, or significance, of the difference 
+                                                   between our groups for [this] sample and distribution. Revisiting our example, we may find the means and SD for stopping at a sign 
+                                                   between stores are nearly identical. While we may have observed a significant in a One-Sample t-test, or the effect of stopping due to our sign, 
+                                                   this did not change between the samples for grocery store A and grocery store B. ",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  plotOutput(outputId = "twomean_reduc_sd_1"),
-                                                 br(),
-                                                 br(),
-                                                 h4("Meaning of p-value in NHST?", style = "font-samily: 'time'"),
-                                                 p("In this and other tabs in this shinyapp the p-value is used to represent the impact of means/errors and the 
-                                                 crud factor (sample size) on the p-value in the null hypothesis significance testing (NHST) framekwork. As noted in Kruschke & Liddel (2018),
-                                                 the p-value is", span("the probability that the observed effect/t-value would be observed if: a) H0/null were true and b) data were 
-                                                 sampled according to the same stopping/testing methids as this data.", style = "font-style: italic"), "As mentioned earlier, the mean or 
-                                                 mean difference (our signal) is in the numerator and the st dev (the noise) is in the denominator. So larger values in numerator and 
-                                                 smaller values in the denominator increase the t-statistic and thus 'significance'. The sample size (in the numerator) also does a lot of heavy 
-                                                 lifting as it attenuates the impact of intersubject variability.",
+                                                 p("As you keep playing with the parameters, you'll find a similar cautionary tale of 'significance' (or the golden ticket, p < .05). 
+                                                   For the Two-Sample t-test, the t-statistic that we get can again be impacted by the scaling of SD in the denominator by the N. 
+                                                   As we say in Figure 4 for the One-Sample t-test, in Figure 7, for the Two-Sample t-test, we observe a similar scaling by the 
+                                                   sample size. ",
                                                    style = "font-family: 'times'; font-size:14px"),
                                                  br(),
                                                  br(),
-                                                 p("Packages used - Plotting: ggplot | plotting htest t-distributions: webr via plot()",
+                                                 h4("Meaning of p-value in NHST?", style = "font-samily: 'time'"),
+                                                 p("As we were going along, one thing you may have noticed is the phrasing of ‘for this sample'. This is an important thing to keep in mind. 
+                                                 Most statistics we use in the null hypothesis significance testing (NHST) are based on the parameter (mean, SD, Pearson’s r) distributions. These distributions are often specific to our 
+                                                 observations/data/samples.",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("In this and other tabs in this shinyapp the p-value is used to represent the impact of means/errors and the 
+                                                 crud factor (sample size) on the p-value in the NHST framekwork. As noted in Kruschke & Liddel (2018),
+                                                 the p-value is", span("the probability that the observed effect/t-value would be observed if: a) H0/null were true and b) data were 
+                                                 sampled according to the same stopping/testing methids as this data.", style = "font-style: italic"), "As mentioned earlier, the mean or 
+                                                 mean difference (our signal) is in the numerator and the SD (the noise) is in the denominator. So larger values in numerator and 
+                                                 smaller values in the denominator increase the t-statistic and thus 'significance'. The sample size (in the numerator) also does a lot of heavy 
+                                                 lifting as it attenuates the impact of BETWEEN subject (or intersubject) variability. So when we use the significance is based on NHST,
+                                                 if we meet, we are bound the the interpretation within that sample. A sampling or measurement technique from a different sample
+                                                   can produce different distributions and hence results. 
+                                                   So generalizability should be tested and not assumed.",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 br(),
+                                                 br(),
+                                                 p("Packages used - Plotting: ggplot w/ tidyverse | plotting htest t-distributions: webr via plot() by Keon-Woong Moon",
                                                    style = "font-family: 'times'; font-size:10px")
                                              )
                                          )
@@ -235,25 +349,82 @@ UserInferface <- navbarPage("Oooooooo, Data So Shiny!",
                                              ),
                                              mainPanel(
                                                  h2("Correlation plots and effects from specified data"),
-                                                 p("What does this tab represent? Similar as the first tab, here a normally distributed dataset generated.",
-                                                   "Then the association between Var1~Var2 and Var3~Var4 is plotted.",
+                                                 p("What does this tab represent? Similar to the T-test tab and normally distributed dataset is simulated. Unlike the T-test
+                                                   tab where we simulate the data solely based on your mean and standard deviation (SD), here your data is generated based on your means
+                                                   for four variables and some pre-specified correlation between Var1 & Var2 and Var3 & Var4.",
                                                    "Below, the effect size and p-value is printed to see if/how these change",
                                                    style = "font-family: 'times'; font-size:14px"),
+                                                 p("The association between two variables (hence forth indicated by '~') is plotted. Specifically, the correlation between 
+                                                   Var1 ~ Var2 and Var3 ~ Var4. We could have specified a correlation among other combinations, such as Var1 ~ Var3, but we will 
+                                                   simplify things and not get into that just yet. For now, we will plot the two correlations.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  br(),
+                                                 p("Before we get into the plots, let's first take a look at the formulation for the Pearson's r correlation. The pearson correlation
+                                                 provides a coefficient for a linear association between two variables, which can be zero, positive, or negative.
+                                                   At first glance, the below formula may look a bit overwhelming. But we can simplify the equation into the numerator and 
+                                                   the denominator. The denominator calculates the overall covariation among our variables (such as, when Var1 goes up by 2, Var2 
+                                                   may go up 4). Let's first break down (x−m x)(y−m y). 'x' and 'y' are the observed values for our variables. So if we had 10 observations
+                                                   of X and Y variables, we would have ten 'x' and 'x' values. Let's say in this case X is the measure of how many miles
+                                                   that I ran during a span of 2 hrs for a given day and Y is a measure of how tired I reported I was after a run. I did this 10 times across two weeks.
+                                                   Then, the 'm x' and 'm y' are the sample means for each of those values. So if I did 10 runs, for X and Y I would get the mean
+                                                   across the 10 observations, respectively.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  uiOutput(outputId = "corr_formula_p"),
+                                                 p("Because I like fried chicken and am inconsistent with my running, we will see variability in the distance and fatigue that I report.
+                                                   This variability we can leverage to determine the magnitude of the relationship between my running and self-reported fatigue. 
+                                                   If I always ran the same distance and never varied in my fatigue, first that would be really weird and second that would offer
+                                                   no variability that we may leverage. To get the covariance of across values for Var1 (running) and Var2 (fatigue), we would take the ten sets of (x−m x)(y−m y), such as (3 - 2)(9 - 8), (1.5 - 2)(5 - 8), 
+                                                   (3 - 2)(9 - 8), (3 - 2)(8.5 - 8), etc... and sum (∑ simply means summation over)  across those ten iterations. Now we have the numerator. 
+                                                   Normally, to get the sample covariance the numerator would be (n - 1), so for ten observations we would divide by 10-1, or 9. 
+                                                   HOWEVER, this is a sample constrained numerical value and we want something more standardized and interpretable across studies. 
+                                                   The Pearson's correlation achieves this standardized unit via the denominator. It standardizes the numerator by the samples standard deviations for the
+                                                   sample. By doing so, we achieve values that will always be constrained to +/- 0.0 to 1.0. ",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("Now that we have collected the data, we can calculate the correlation between Var1 and Var2 by hand, or use Excel, R, SPSS or some other software
+                                                   to do the math for us. For simplicity, if you have pushed 'Onward' you will see scatter plots of the simulated data for the specified correlation.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  plotOutput(outputId = "corr_plot1"),
-                                                 plotOutput(outputId = "corr_plot2"),
-                                                 br(),
-                                                 h4("Person r values for each of the inputs",
-                                                   style = "font-family: 'times'"),
+                                                 p("Figure 1 and Figure 2 provides the strength of your correlation represented by the linear line and the Pearson's r coefficient. Both represent the
+                                                   direction and magnitude for the associations. You can play around with sample size, means, and Pearson r coefficient sizes to see how things change.
+                                                   You'll notice the bar lines on the perimeter of the graph represent the distribution of the data points, so as data points cluster you'll see the bars
+                                                   get darker (which is just clustering of values.",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("Just like other statistical tests, people like to see whether a correlation, or association, among two variables is significant. So is there a
+                                                 significant association between the distance I ran and how tired I am? The table below reports whether the association between your variables is 
+                                                 or is not significant (note: if you see p.value = 0, that simply means that p < 0000000). The p-value is calculated using a t-distribution with n – 2 degrees of freedom.
+                                                 The statistical test makes the assumption that the correlation between two variables in the population is zero. So when p < .05 between Var1 and Var2, 
+                                                 for example, we are saying the association among these variables in our 
+                                                   sample is significantly greater than zero.",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("An important caveat with the correlation is while we do get an association between two variables, we cannot know whether one causes the other.
+                                                   In our example, if we find that the correlation between running distance and self-reported fatigue is p < .0001, one may make the claim
+                                                   that the distance caused the fatigue. While it is a safe bet in my case, as I am out of shape. There are caveats in something even as basic as this.
+                                                   Perhaps I have an injury that with longer distances is imacting my fatigue. Or, maybe it's that I'm not well hydrated or ate appropriately
+                                                   that is causing distant to make me more tired. So it's less the running, my more the issue of not having enough carbs or water.",
+                                                   style = "font-family: 'times'; font-size:14px"),
                                                  br(),
                                                  tableOutput(outputId = "corr_test"),
                                                  br(),
+                                                 p("It is important to keep in mind the importance of a correlation rather than solely focusing on a p-value.
+                                                   Funder & Ozer (2019) [https://doi.org/10.1177/2515245919847202], discussed the sense and nonsense of effect sizes.
+                                                   How plausible and meaningful of an  effect depends on the context. While we may get really large or really small
+                                                   effects in our individual samples, we have to reflect on these values to determine whether it is meaningful to what we are 
+                                                   trying to measure. For example, does it make sense that age and height correlate r = .65 in a sample of <25 yr olds, but a measure
+                                                   of some gene and some behavior correlate r = .45? Not necessarily -- height and age are a pretty large and observable effects in the
+                                                   real world. We can see the association. But genes and behaviors are extremely complex, so to see a large correlation should make us
+                                                   think 'how is this plausible?' and 'why did this occur in our sample?' In the tab on 'stability of effects', I try to
+                                                   provide an example how large effects may arise that are likely to be small in the real-world",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 p("One other thing to keep in mind with correlations is to pay attention to our sample, varibles and the correlation we find,
+                                                   rather than searching for the p-value. As you can see in Figure 3 below, a Pearson's correlation of r = .15 can be
+                                                   non-significant and ignored until a sample threshold is hit. The p-value can be misleading.",
+                                                   style = "font-family: 'times'; font-size:14px"),
+                                                 plotOutput(outputId = "corr_n_p"),
                                                  h4("Alt to Pearson's r: Spearman's rho",
                                                     style = "font-family: 'times'"),
                                                  p("Alternative to Pearson's r, one can use the spearman's formula which computes the
                                                    correlation by the rank of x and y. The formula is similar with the exception of x = x', 
-                                                   whereby x' is the rank(x)"),
+                                                   whereby x' is the rank(x)... Will expand more on this soon..."),
                                                  br(),
                                                  uiOutput(outputId = "corr_formula_rho"),
                                                  br(),
@@ -478,12 +649,49 @@ tabPanel("ANOVA",
                                                          br(),
                                                          br(),
                                                          p("Packages used - Plotting: ggplot | Linear/multiple regression via: lm() | simulating data: mvnorm() via MASS | 
-                                                           Stitching ggplots via patchwork",
+                                                           Stitching ggplots via patchwork by Thomas Lin Pedersen ",
                                                            style = "font-family: 'times'; font-size:10px")
                                                          )
                                                      )
                                                  )
                                              ),
+################################
+################################
+################################
+
+tabPanel("Construct Validation",
+         fluidPage(
+             sidebarLayout(position = "right",
+                           sidebarPanel(
+                               h4("Select Parameters to Simulate Data at Specified Pearson's r"),
+                               actionButton("runN", "TBD!", 
+                                            style =  "color: #FFF; background-color: #8B0000; border-color: #FFFF00")
+                           ),
+                           mainPanel(
+                               h2("Construct Validation: TBD"),
+                               p("Considering how I would like to present this. The structure and function is TBD. In the meantime, here 
+                                 are some quotes on constructs",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               p("Cronbach & Meehl (1957) 'Validation takes place when research believes an instrument 
+                                 reflects a particular construct to which a meaning is attached' (pg 290)",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               p("Loevinger (1957) 'Traits exist in people; constructs 
+                                 (here usually about traits) exist in the minds and magazines of psychologists.' pg 642",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               p("Shadish, Cook & Campbell (2002), a)	Constructs are almost always 
+                                 couched in terms that are more abstract than elements in the experiment ",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               p("Flake & Fried (2020) Refer to measurement as, “any approach that researchers take to create a number 
+                                 to represent a variable under study” pg (458)",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               p("Proulx & Morey (2021) 'In some cases, psychologists may change theoretical labels to obscure the 
+                                 origins in order to meet some level of novelty/ground breaking finding' (pg 673)",
+                                 style = "font-family: 'times'; font-size:14px"),
+                               br()
+                           )
+             )
+         )
+),
 ################################
 ################################
 ################################
@@ -546,7 +754,8 @@ tabPanel("CFA & PCA",
                                p("Returning Plot with Standardized Values",
                                   style = "font-family: 'times', font-size = 14px"),
                                plotOutput(outputId = "sem_plot"),
-                               p("Packages used: Data was simulated via simsem() and lavaan(). Parameter table was generated using parameters(). 
+                               p("Packages used: Data was simulated via simsem() by Sunthud Pornprasertmanit et al. & lavaan() by Yves Rosseel. 
+                               Parameter table was generated using parameters() by Daniel Lüdecke et al. 
                                  The plot was generated using semPlot()",
                                  style = "font-family: 'times'; font-size:10px")
                            )
@@ -568,7 +777,7 @@ local_server <- function(input, output, session){
     
 
     
-# T- test: simulation data based on user providing 3 means & 3 sds
+# T- test: simulation data based on user providing 2 means & 2 sds
 
     data <- eventReactive(input$run1, {
         data<- data.frame(var1 = rnorm(n = input$sample,
@@ -812,7 +1021,7 @@ local_server <- function(input, output, session){
     output$one_t_formula <- renderUI({
         
         withMathJax(
-            print(paste0("$$ t = \\frac{m-\\mu}{s//\\sqrt{n}} $$"))
+            print(paste0("$$ t = \\frac{m-\\mu}{s/\\sqrt{n}} $$"))
         )
     })
     
@@ -822,7 +1031,8 @@ local_server <- function(input, output, session){
             group_by(Variable) %>% 
             dplyr::summarise('Sample Size (N)' = n(), 
                              'Mean' = mean(Data),
-                             'SDs' = sd(Data)) %>% 
+                             'SDs' = sd(Data),
+                             'Population Mean' = input$pop_mean) %>% 
             kable(digits = 2) %>%
             kable_styling("striped",
                           full_width = T, font_size = 12, html_font = 'Times') 
@@ -922,17 +1132,6 @@ local_server <- function(input, output, session){
     
     output$two_mean_dist <- renderPlot({
         
-        plot_2grp_corr <- ggplot(data = data(), aes(x = var1, y = grp_values)) +
-            geom_point(aes(colour = groups)) +
-            geom_smooth(method = "lm", se = FALSE, aes(colour=groups))+
-            geom_smooth(method = "lm", se = FALSE, color = "black")+
-            labs(title = "Fig 4. Correlation between Var 1 & Var 3 (group values) and Different Groups")+
-            xlab("Variable 1")+
-            ylab("Variable 3")+
-            theme(text = element_text(size = 12, family = "times"))+
-            theme_minimal()
-        
-        
         plot_2grp_means <- ggplot(data = data(), aes(x = groups, y = grp_values)) +
             geom_boxplot(aes(colour = groups))+
             geom_point(size = 1/input$sample, position = "jitter", aes(colour = groups)) +
@@ -942,7 +1141,17 @@ local_server <- function(input, output, session){
             theme(text = element_text(size = 12, family = "times"))+
             theme_minimal()
         
-        plot_2grp_corr / plot_2grp_means + plot_layout(guides = 'collect')
+        plot_2grp_corr <- ggplot(data = data(), aes(x = var1, y = grp_values)) +
+            geom_point(aes(colour = groups)) +
+            geom_smooth(method = "lm", se = FALSE, aes(colour=groups))+
+            geom_smooth(method = "lm", se = FALSE, color = "black")+
+            labs(title = "Fig 6. Correlation between Var 1 & Var 2 (Grouped) and for Individual Groups")+
+            xlab("Variable 1")+
+            ylab("Variable 2")+
+            theme(text = element_text(size = 12, family = "times"))+
+            theme_minimal()
+        
+         plot_2grp_means / plot_2grp_corr + plot_layout(guides = 'collect')
     }) 
     
     
@@ -992,7 +1201,7 @@ local_server <- function(input, output, session){
         
         ggplot(data = data_sd, aes(x = SampleSize, y = SD)) +
             geom_line()+
-            labs(title = "Fig 5. Standard deviation scaled by Sample Size for two groups with equal N", 
+            labs(title = "Fig 7. Standard deviation scaled by Sample Size for two groups with equal N", 
                  caption = "Sample Size range: 5 to 2000 in intervals 5")+
             xlab("Sample Size")+
             ylab("Denominator: Two-Sample t-test")+
@@ -1062,22 +1271,68 @@ local_server <- function(input, output, session){
 #### Plots
     output$corr_plot1 <- renderPlot({
         
-        ggplot(sim_corr(), aes(x = X1, y = X2)) +
+        cor1 <- round(
+            as.numeric(
+            cor.test(x = sim_corr()$X1, 
+                          y = sim_corr()$X2,
+                          method = "pearson")$estimate),2)
+        cor2 <- round(
+            as.numeric(
+            cor.test(x = sim_corr_2()$X1, 
+                          y = sim_corr_2()$X2,
+                          method = "pearson")$estimate),2)
+        
+        corplt1 <- ggplot(sim_corr(), aes(x = X1, y = X2)) +
             geom_smooth(method = "lm", se = FALSE)+
             geom_point()+
             geom_rug(size = .3, position = "jitter", colour = "sienna4")+
+            labs(title = "Fig 1. Association between Var 1 and Var 2", 
+                caption = "*Data simulated based on specified parameters")+
+            xlab("Var1")+
+            ylab("Var2")+
+            annotate("label", x = mean(sim_corr()$X1)+2, y = mean(sim_corr()$X2)+2, 
+                     label = paste0("Pearson's r: ",cor1))+
             theme_minimal()
+        
+        corplt2 <- ggplot(sim_corr_2(), aes(x = X1, y = X2)) +
+           geom_smooth(method = "lm", se = FALSE)+
+           geom_point()+
+           geom_rug(size = .3, position = "jitter", colour = "sienna4")+
+           labs(title = "Fig 2. Association between Var 3 and Var 4", 
+                caption = "*Data simulated based on specified parameters")+
+            xlab("Var3")+
+            ylab("Var4")+
+            annotate("label", x = mean(sim_corr_2()$X1)+2, y = mean(sim_corr_2()$X2)+2, 
+                     label = paste0("Pearson's r: ",cor2))+
+           theme_minimal()
+        
+        corplt1 / corplt2 + plot_layout(guides = 'collect')
     })
     
-    output$corr_plot2 <- renderPlot({
-        
-        ggplot(sim_corr_2(), aes(x = X1, y = X2)) +
-            geom_smooth(method = "lm", se = FALSE)+
-            geom_point()+
-            geom_rug(size = .3, position = "jitter", colour = "sienna4")+
-            labs(title = "Fig 2. Association between Var 3 and Var 4", 
-                 caption = "*Data simulated based on specified parameters")+
-            theme_minimal()
+    output$corr_n_p <- renderPlot({
+       
+    data_r_list = list()
+       for (i in seq(5,700,5)) {
+           
+           t_val <- (.15*(sqrt(i-2)))/sqrt(1-(.15^2))
+           p_val <- 2*pt(-abs(t_val), df = i-2)
+           
+           data_r_list[[i]] <- data.frame('SampleSize' = i, "p_value" = p_val)
+       }
+       
+       data_r_p <- do.call(rbind, data_r_list)
+       
+       
+       ggplot(data = data_r_p, aes(x = SampleSize, y = p_value)) +
+           geom_line()+
+           labs(title = "Fig 3. Effect of Sample size on p-value for Pearson Correlation of r = .15", 
+                caption = "Sample Size: 5 to 700; Dashed Red Line, p = .05")+
+           xlab("Sample Size")+
+           ylab("p-value")+
+           geom_hline(yintercept = .05, linetype = "dashed", colour = "red")+
+           theme(text = element_text(size = 12, family = "times"))+
+           theme_minimal()
+       
     })
     
 ##########################
