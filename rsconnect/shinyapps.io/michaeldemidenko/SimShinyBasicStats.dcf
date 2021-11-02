@@ -5,9 +5,10 @@ account: michaeldemidenko
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4927001
-bundleId: 5168487
+bundleId: 5204940
 url: https://michaeldemidenko.shinyapps.io/SimShinyBasicStats/
-when: 1634943665.30291
-lastSyncTime: 1634943665.30292
+when: 1635896069.9715
+lastSyncTime: 1635896069.97151
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: .gitattributes
