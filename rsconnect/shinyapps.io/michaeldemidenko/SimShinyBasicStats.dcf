@@ -1,14 +1,14 @@
 name: SimShinyBasicStats
-title: SimShinyBasicStats
+title:
 username:
 account: michaeldemidenko
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4927001
-bundleId: 5204940
+bundleId: 5210421
 url: https://michaeldemidenko.shinyapps.io/SimShinyBasicStats/
-when: 1635896069.9715
-lastSyncTime: 1635896069.97151
+when: 1635986452.86364
+lastSyncTime: 1635986452.86365
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: .gitattributes

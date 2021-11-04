@@ -28,6 +28,7 @@ library(NHANES)
 library(glue)#print variables within string
 library(Superpower)#anova simulate file:///Users/michaeldemidenko/Downloads/0.1_Simulation_Based_Power_Analysis_For_Factorial_ANOVA_Designs.pdf
 library(multcomp) # anova tukey
+library(ppcor)
 
 # UI -- display that adjusts the dimensions of browser
 # Shiny app application guides advanced layouts: https://shiny.rstudio.com/articles/layout-guide.html https://mastering-shiny.org/action-layout.html
@@ -119,8 +120,16 @@ UserInferface <- navbarPage("Ooo, So Shiny!",
                                                    around those numbers a tiny bit. Furthermore, each time the sample N is changed,
                                                    the data set is resimulated. Thus, they won't be exact, but approximate is the goal. It's for fun, after all...",
                                                    style = "font-family: 'times'; font-size:14px"),
-                                                 p("For Citation & Documentation purposes, code will will be available on Github when app is complete",
-                                                   style = "font-family: 'times'; font-size:10px"),
+                                                 p("Please complete ", 
+                                                   a("this brief survey.", href="https://umich.qualtrics.com/jfe/form/SV_80zhUf4cB7wJXWC", target="_blank"),
+                                                   "to tailor and refine future versions of this app.",
+                                                   style = "font-family: 'times'; font-size:12px"),
+                                                 p("For Citation & Documentation purposes, code will will be available on",
+                                                   a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
+                                                   style = "font-family: 'times'; font-weight: bold; font-size:10px"),
+                                                 br(),
+                                                 br(),
+                                                 br(),
                                                  p("© 2021 Michael Demidenko. Some rights reserved. Please contact for more details",
                                                    style = "font-family: 'times'; font-size:10px")
                                              )
@@ -356,27 +365,27 @@ UserInferface <- navbarPage("Ooo, So Shiny!",
                                                  actionButton("run1", "Onward!", 
                                                               style =  "color: #FFF; background-color: #8B0000; border-color: #FFFF00"),
                                                  sliderInput("sample", label = "Sample Size",
-                                                             min = 5, value = 50, max = 2000, step = 15),
+                                                             min = 5, value = 125, max = 2000, step = 15),
                                                  sliderInput("pop_mean", label = "Population Mean (e.g., H0)",
                                                              min = 0, value = 0, max = 30, step = .5),
                                                  sliderInput("alpha", label = "Alpha α (Type I error rate)",
                                                              min = 0.0001, value = .05, max = .20, step = .025),
-                                                 sliderInput("mean1", label = "Var  *1* Mean ",
-                                                             min = 0, value = 5, max = 30, step = .5),
-                                                 sliderInput("sd1",  label = "Var *1* St Dev",
-                                                             min = 0.1, value = 3, max = 25, step = .5),
-                                                 sliderInput("mean2", label = "Var *2* Mean",
-                                                             min = 0, value = 5, max = 30, step = .5 ),
-                                                 sliderInput("sd2", label = "Var *2* St Dev",
-                                                             min = 0.1, value = 3, max = 25, step = .5),
+                                                 sliderInput("mean1", label = "Var  1 Mean ",
+                                                             min = 0, value = 9, max = 30, step = .5),
+                                                 sliderInput("sd1",  label = "Var 1 St Dev",
+                                                             min = 0.1, value = 2.25, max = 25, step = .5),
+                                                 sliderInput("mean2", label = "Var 2 Mean",
+                                                             min = 0, value = 20, max = 30, step = .5 ),
+                                                 sliderInput("sd2", label = "Var 2 St Dev",
+                                                             min = 0.1, value = 4, max = 25, step = .5),
                                                  sliderInput("grp_m1", label = "Group A Mean",
-                                                             min = 0, value = 5, max = 30, step = .5),
+                                                             min = 0, value = 22, max = 30, step = .5),
                                                  sliderInput("grp_sd1",  label = "Group A St Dev",
-                                                             min = 0.1, value = 3, max = 25, step = .5),
+                                                             min = 0.1, value = 6.2, max = 25, step = .5),
                                                  sliderInput("grp_m2", label = "Group B Mean",
-                                                             min = 0, value = 5, max = 30, step = .5 ),
+                                                             min = 0, value = 3.5, max = 30, step = .5 ),
                                                  sliderInput("grp_sd2", label = "Group B SD",
-                                                             min = 0.1, value = 3, max = 25, step = .5)
+                                                             min = 0.1, value = 5, max = 25, step = .5)
                                                  
                                              ),
                                              mainPanel(
@@ -522,8 +531,8 @@ UserInferface <- navbarPage("Ooo, So Shiny!",
                                                  p("Figure 5 are boxplots with the mean and SD for each group (A & B). Like Figure 1 & 2, you can observe the spread of the raw data points 
                                                    that are simulated for each group. Then, Figure 6 is a visual representation how ignoring groups and looking at variables alone may 
                                                    provide a different association (black line) amongst Var1 and Var2 than if you were to consider those associations across groups 
-                                                   (green and yellow). In this scenario the contrast may now be as stark, but as you toggle Var 1, Var 2, Group A and Group B, 
-                                                   you may notice distinct differences in the association between Var1 and Var1. For example, when the groups are combined the association 
+                                                   (green and yellow). In this scenario the contrast may now be as stark, but I will expand on how exaggerated 
+                                                   there differences may become in data. For example, when the groups are combined the association 
                                                    may be zero, but when separated, the association may be positive for one group and negative for the other. More on correlations in the 
                                                    ‘Correlation’ and “Stability of Effect’ tabs.",
                                                    style = "font-family: 'times'; font-size:14px"),
@@ -1120,9 +1129,9 @@ tabPanel("ANOVA",
                                                          sliderInput("m_reg_sd2", label = "IV 1 SD",
                                                                      min = .01, value = 2.2, max = 10, step = .1),
                                                          sliderInput("m_reg_m3", label = "IV 2 Mean",
-                                                                     min = -20, value = -2.7, max = 20, step = .5),
+                                                                     min = -20, value = 19.2, max = 20, step = .5),
                                                          sliderInput("m_reg_sd3", label = "IV 2 SD",
-                                                                     min = .01, value = 1.15, max = 10, step = .1),
+                                                                     min = .01, value = 3.8, max = 10, step = .1),
                                                          sliderInput("m_reg_corr1",
                                                                      label = "Pearson's r between DV & IV 1",
                                                                      min = 0, value = .22, max = 1, step = .005),
@@ -1142,9 +1151,21 @@ tabPanel("ANOVA",
                                                            correlations. In some of those tabs I referred to 'linear' models/formulas, so in this tab we will cover Regression model which
                                                            measures the association between continuous variables.
                                                            First, we will go over linear regression, whereby we explain the association between a single IV and a DV variable. Then,
-                                                           we consider multiple regression, which is the association between more than one IV and a DV. The tab here simulates data
+                                                           we consider multiple regression, which is the association between more than one IV and a DV. The linear regression will provide conceptual
+                                                           information that we will build on with multiple regression. Given how linear regression coefficients are calculated, as discussed in
+                                                           the",
+                                                           a("S3E09 Quanatitude podcast.", 
+                                                             href="https://www.buzzsprout.com/639103/9460323", target="_blank"),
+                                                           "The tab here simulates data
                                                            using a normal distribution based on means and their correlations. So you can control the association between your IVs and DVs
                                                            to determine how these associations impact your results. I also include an 'outlier' option which adds in up to three random values
+                                                           that are five SDs larger than than the mean for that data. For the linear regression I try to provide the context of how these
+                                                           models related to what we discussed before, correlations. Finally, I will include a section on logistic regression which measures
+                                                           the probability, or odds, of a binary outcome (0/1) occuring given some IVs.",
+                                                           style = "font-family: 'times'; font-size:14px"),
+                                                         p("The tab here simulates data
+                                                           using a normal distribution based on means, SDs and their correlations. So you can control the association between your IVs and DVs
+                                                           to determine how these associations impact your results. I also include an 'outlier' option which adds up to three random values
                                                            that are five SDs larger than than the mean for that data. For the linear regression I try to provide the context of how these
                                                            models related to what we discussed before, correlations. Finally, I will include a section on logistic regression which measures
                                                            the probability, or odds, of a binary outcome (0/1) occuring given some IVs.",
@@ -1163,7 +1184,7 @@ tabPanel("ANOVA",
                                                            this relationship.", 
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          p("A linear regression model is expressed in the equation below. Using our example, we can obtain the estimated value of drinking by identifying the intercept
-                                                           (α, or more commonly β0) where our line intersects the vertical axis and slope for our IV (β1) with some amount of error/variability (ϵ).
+                                                           (β0) where our line intersects the vertical axis and slope for our IV (β1) with some amount of error/variability (ϵ).
                                                            While our observations are known, our intercept, slope and error are unknown.
                                                            Linear regression uses ordinary least squares (OLS) to estimate these 'unknowns'. In essence what this means is the OLS attempts to fit
                                                            a linear line to our IV that explains the maximum amount of variation (sums of squares) in our DV. Commonly referred to as the 'line of best fit'. 
@@ -1173,40 +1194,46 @@ tabPanel("ANOVA",
                                                            This will make a bit more sense when we go over the figures below.", 
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          uiOutput(outputId = "m_reg_formula_1"),
-                                                         p("Below are the descriptives: sample size, mean and SD for the data that is simulated here. Noticed, the data is simulated based on proposed
-                                                           correlations between our variables, therefore the SD is 1 for each variable. This is unlikely to be the case in most, if not all real-world data. 
-                                                           But this again is a simple simulation to demonstrate some basic concepts. Note, when outliers are introduced, these values will shift.", 
+                                                         p("To better understand our regression coefficients, and see how they related to correlations, we can break down the formula above a bit. For instance, to get the 
+                                                           β1, or estimated β1 (b-hat), you will observe that this is the covariation between our independent variable (x) and our dependent variable (y)
+                                                           that is scaled by the variance of our independent variable (x). Then, the estimated β0 is the difference between the mean of our dependent variable minus the product of
+                                                           the weighted (by β1) mean of our independent variable (x). Hopefully, the formula is easier to follow now.", 
+                                                           style = "font-family: 'times'; font-size:14px"),
+                                                         uiOutput(outputId = "m_reg_calc_b1"),
+                                                         uiOutput(outputId = "m_reg_calc_b0"),
+                                                         p("Below are the descriptives: sample size, mean and SD for the data that is simulated here. Of note, this data is simulated based our parameters mean, SD and pearson's r
+                                                         based on a normal distribution. This often is unlikely to be the case in most real-world data. 
+                                                           But this again is a simple simulation to demonstrate the basic concepts. Note, when outliers are introduced, the values in this table will shift.", 
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          tableOutput(outputId = "m_reg_1_descr"),
                                                          p("We can plot the observed data for Drinking (DV) and Reward Seeking (IV). Then, we can fit a linear line to this data to get a visual representation
-                                                           of this association. If you had read other tabs to this point, you may be noticing that this looks a lot like a correlation. You would be correct --
-                                                           both are in the general linear model and represent relationships among variables. I will expand on this a bit more in the multiple regression section below, but broadly,
-                                                           in correlational/cross-sectional data the Pearson correlation and the linear regression are quite similar. The distinction is that linear regression
-                                                           has a predictor (IV) and the outcome  (DV), so the regression model fits an OLS model that best predicts our outcome from one (simple) or more (multiple) IVs. This best fit model 
+                                                           of this association. If you had read other tabs to this point and have followed along here, you will see that this looks a lot like a correlation. Which is correct, because
+                                                           both are in the general linear model and represent relationships among two variables. I will expand on this a bit more in the multiple regression section below, but broadly,
+                                                           in correlational/cross-sectional data the Pearson correlation and the linear regression are very similar. Nonetheless, in in linear regression the best fit model 
                                                            attempts to explain a greater amount of deviations in the DV than the mean for the DV. So in Figure 1, the best fit line would be the green line and the mean is the redline. While you can't
                                                            always see it with so many datapoints, the green line explains more variability in Drinking than the redline.",
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          plotOutput(outputId = "m_reg_plot_1"),
-                                                         p("If we were to fit a regression line to our data, prediction Drinking (DV) by Reward Seeking (IV), we would get several associated regression coefficients. Table 2
+                                                         p("If we were to compute a regression line for our data, predicting Drinking (DV) by Reward Seeking (IV), we would get several associated regression coefficients. Table 2
                                                            reports these coefficients for the linear regression model. First, we get an intercept (β0), which tells us where the line crosses the vertical axis on the graph.
-                                                           Notice, the β0 coefficient, or our intercept, does not map onto a mean from Table 1. This is because β0 is the when our IV, reward seeking, is zero. So β0 is in the
-                                                           abscence of β1. So you can interpret the intercept as 'when Reward seeking is zero, the average drinking quantity is...'. 
+                                                           Notice, the β0 coefficient, or our intercept, does not map onto a mean from Table 1. This is because, as the formula demonstrated above, β0 is the when our IV, reward seeking, is zero. 
+                                                           So β0 is in the abscence of β1. So you can interpret the intercept as 'when Reward seeking is zero, the average drinking quantity is...'. 
                                                            Then we get our  β1, or the estimated coefficient/slope for our predictor, Reward seeking. This is often interpreted as the main effect of IV
                                                            on the DV. The interpretation, in the unstandardized coefficient is one unit increase in our IV (i.e, X), reward seeking, is associated with the slope coefficient increase
-                                                           in our DV (i.e., Y). For this predictor we get an associated p-value which is based on our T-statistic. This indicates whether this unit increase
-                                                           is statistically significant",
+                                                           in our DV (i.e., Y). The units of this scale will depend on your scales/measures. If we standardize this unit, we will get a coefficient that is identical to the pearson's r.
+                                                           For this predictor we get an associated p-value which is based on our T-statistic. This indicates whether this unit increase is statistically significant",
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          tableOutput(outputId = "m_reg_1_coef"),
-                                                         p("In addition to our regression coefficients, what the linear regression models estimates are several overall model fit statistics. For instance,
+                                                         p("In addition to our regression coefficients, what the linear regression model estimates are several overall model fit statistics. For instance,
                                                            in Table 2 we get the associated coefficients and their significance values. However, this model doesn't tell us whether this is a meaningful improvement on
                                                            a simpler model, which would be a mean based model for our DV. What I mean by this is, in Figure 1 we saw the green and red line, representing the line of best fit
                                                            and the mean, respectively. The model fit tells us whether this model explains more than just using the mean. The F-statistic and associated degreees of freedom, DF1 and DF2,
-                                                           allow us to see whether this is significant. DF1 is calculated using the number of IVs - 1 (or p - 1), and DF2 is calculated using the sample N - 2. The model also estimates
+                                                           allow us to see whether this is a significant improvement. DF1 is calculated using the number of IVs - 1 (or p - 1), and DF2 is calculated using the sample N - 2. The model also estimates
                                                            an R-squared value, or what is also referred to as the 'Coefficicent of Determination' and an adjusted R-squared. The R-squared value tells us about the improvement of the best fit line
                                                            over a mean line, and the adjusted R-squared is a penalized version of this. I explain this in greater detail next.",
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          tableOutput(outputId = "m_reg_1_model"),
-                                                         p("The R-squared is calculated using the below formula. It is the fraction of Sum of Squares Residuals (SSR) and the Sum of Squares Total (SST). The valued will be between 0 and 1. 
+                                                         p("The R-squared is calculated using the below formula. It is the fraction of Sum of Squares Residuals (SSR) and the Sum of Squares Total (SST). The value will be between 0 and 1. 
                                                          It is often interpreted as the percent of variance in our DV that can be explained by the regression line.
                                                          The SST is the maximum amount of deviation that we have around our DV, drinking. This is the mean model. Like we went over in previous tabs, 
                                                          if we were to calculate the mean and subtract each observed value from the mean and square it, the sum of these values would give us the SST. 
@@ -1215,25 +1242,26 @@ tabPanel("ANOVA",
                                                            percent of variance in the DV that the IVs explain. ",
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          uiOutput(outputId = "r_sqrd"),
-                                                         p("Now, the more IVs you add you will inherently explain more variance. So the models with more predictors will always appear better. Most models 
+                                                         p("Now, the more IVs you add you will inherently explain more variance. So the models with more predictors will always 'appear' better when we look at R-squared. Most models 
                                                            prefer parsimony over complexity, and thus complex models that have more predictors are penalized. This is done using the formula below. The key value that punishes
-                                                           the R-squared value are the number of predictors (p), or IVs. As the sample gets larger, the severity is not as great, but in some cases may still be meaningful",
+                                                           the R-squared value are the number of predictors (p), or IVs. As the sample gets larger, the severity of this punishment decreases, but in some cases may still be meaningful.
+                                                           So you are rewarded for sample size and parisomy, so your model has more parameters to estimate the coefficient from.",
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          uiOutput(outputId = "adjst_r_sqrd"),
                                                          p("One unique thing about the R-squared value in a linear regression is that it will be related to the pearson's correlation. In other words,
-                                                           since we specified a correlation between our IV and DV to be r =.22, if we take the square root of the r-squared value, this will match our r-value, that is
+                                                           since we specified a correlation between our IV and DV to be r =.22, if we take the square root of the r-squared value, this will match our r-value, which is
                                                            reported in Table 4.",
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          tableOutput(outputId = "m_reg_1_corr"),
                                                          br(),
-                                                         p("If we wanted to, we could extra the the predicted values and the residuals and see how these related to the observed data.
+                                                         p("If we wanted to, we could extract the the predicted values and the residuals and see how these relate to the observed data (i.e., what we collected).
                                                            Figure 2 represents the OLS predicted values by the reward observed values. These overlap substantially because the reward values were
-                                                           used to predicted the outcome. In Figure 3 we can observed the residuals, or the deviation of the observed from the
-                                                           predicted values. The black line represents our prediction, however, now all observations are along this line. The deviations are the black lines
-                                                           the connect the point to the fitted line. If we wanted to calculate them manually and add them up, we would get our SSR. In Figure 4 we have the distribution of residuals
+                                                           used to predict the outcome. In Figure 3 we can observe the residuals, or the deviation of the observed from the
+                                                           predicted values. The black line represents our prediction. You will see that not all observations are along this line. The deviations are the black lines
+                                                           that connect the observed point to the fitted line. If we wanted to calculate them manually and add them up, we would get our SSR. In Figure 4 we have the distribution of residuals
                                                            across our IV, reward seeking. These should not have a relationship and the residuals should be evenly scattered across. If there was some relationship,
-                                                           there may be some distinct thing going on at different levels of our predictor. Finally, Figure 5 are the associations between our residuals and drinking. Given
-                                                           that the regression model explains a small amount of variance, the observed drinking value and the difference between the predicted and observed are highly related. 
+                                                           there may be some distinct thing going on at different levels of our predictor which may influence our estimates. Finally, Figure 5 are the associations between our residuals and drinking. 
+                                                           Given that the regression model explains a small amount of variance, the observed drinking value and the difference between the predicted and observed are highly related. 
                                                            On the otherhand, if the regression model explained a large mount of variance, then the difference between predicted and observed values would not be as related.",
                                                            style = "font-family: 'times'; font-size:14px"),
                                                          plotOutput(outputId = "m_reg_plot_2"),
@@ -1241,25 +1269,61 @@ tabPanel("ANOVA",
                                                          br(),
                                                          h4("Multiple Regression Example: ",
                                                            style = "font-family: 'times'"),
-                                                        p("Up until now, we have focused on the relationship between a single predictor (IV) and outcome (DV) using linear regression. However, what if we wanted to predict
+                                                        p("Up until now, we have focused on the linear relationship between a single predictor (IV) and outcome (DV) using linear regression. However, what if we wanted to predict
                                                           drinking in high school students and undergraduate students but we knew other variables were at play? For instance, there is a literature on Reward Seeking being a
                                                           predictor of Drinking, but there is also a literature on Age predicting Drinking. Moreover, this Age variable is frequently reported to be interrelated to Reward Seeking, too.
-                                                          So we may want to predict Drinking using Age and Reward Seeking. This is where Multiple Regression comes into play.",
+                                                          So we may want to predict Drinking using Reward Seeking but accounting for other known variables. 
+                                                          This is where Multiple Regression comes into play.",
                                                           style = "font-family: 'times'; font-size:14px"),
                                                         p("Multiple regression is an extension of linear regression. As is apparent in the formula below, multiple regression is the linear regression formula
                                                           with an added predictor. Whereas in linear regression we estimated a line of best fit for only Reward Seeking (β1), in multiple regression we keep β1 but also include
-                                                          Age, or β2. If we added another, we'd have a β3, β4, etc. The critical difference between linear and multiple regression i that the outcome (DV) is predicted by
+                                                          Age, or β2. If we added another, we'd have a β3, β4, etc. The critical difference between linear and multiple regression si that the outcome (DV) is predicted by
                                                           a combination of the intercept (β0), beta coefficients (β2, β3, etc...) and the error (ϵ) . However, the goal remains the same -- we want a linear line that uses
-                                                          the combination of IVs, Age and Reward Seeking, to maximally predict the outcome, Drinking",
+                                                          the combination of IVs, Age and Reward Seeking, to maximally predict the outcome, Drinking.",
                                                           style = "font-family: 'times'; font-size:14px"),
                                                           uiOutput(outputId = "m_reg_formula_2"),
+                                                        p("Above, we discussed how linear regression is very much alike to correlation. Specifically, I provided an example of how β1 is covariation that is scaled by the IV (x).
+                                                          Below is the reminder of the Pearson's correlation..",
+                                                          style = "font-family: 'times'; font-size:14px"),
                                                           uiOutput(outputId = "mult_corr"),
-                                                          uiOutput(outputId = "mult_part_corr"),
-                                                          p("Plot and coefficients for the linear regression model.",
+                                                        p("Now, consider the partial correlation of xy when control for z (expressed as yx.z below). The numerator adjusts the yx correlation by
+                                                          accounting for relationship that z has with x and y. Then, the denominator keeps the variable (z) constant for x and y.
+                                                          Multiple regression using a similar framework, it estimates the coefficint for an indepdent variable while keeping all other
+                                                          values constant (or at zero). We will discuss this more below.",
+                                                          style = "font-family: 'times'; font-size:14px"),
+                                                        uiOutput(outputId = "mult_part_corr"),
+                                                        p("The descriptives are in the table below. Notice, all of the information is similar to what we had for the linear regression,
+                                                          now we just added an IV, Age.",
+                                                          style = "font-family: 'times'; font-size:14px"),
+                                                        tableOutput(outputId = "m_reg_2_descr"),
+                                                        p("Now we can take a look at the regression coefficients for our model in Table 5 consisting of DV (Drinking), IV1 (Reward) and IV2 (Age).
+                                                          The intercept reflects the same thing as in the linear regression, it is at the point that the line crosses the vertical axis, which is when
+                                                          both Reward Seeking and Age are at zero, or help constant. The interpretation of the regression coefficients (or estimates), is the same here as
+                                                          in the linear regression, EXCEPT now we adjust for the other variable. We still interpret the coefficient as a one unit increase in the IV, say Age, is related
+                                                          to the coefficient increase in the DV, drinking, when all else is held constant. In our case, all else is the other IV, or age. So
+                                                          when interpreting Reward Seeking, we say that a one unit increase on our scale Reward Seeking is related to the [coefficient] increase in our
+                                                          on scale of Drinking when Age is at zero.",
                                                             style = "font-family: 'times'; font-size:14px"),
-                                                          plotOutput(outputId = "m_reg_plot_3"),
-                                                          tableOutput(outputId = "m_reg_2"),
-                                                          br(),
+                                                        tableOutput(outputId = "m_reg_2_coef"),
+                                                        p("As before, we can request the model fit statistics, which tell us how much better we're doing than a mean based model of Drinking.
+                                                          We get a significance value based on our F-statistic and degrees of freedomn, the associated p-value (FYI - this will show zero when it exceed several zeros),
+                                                          and the R squared and adjusted R squared, our variance explained. Using the coefficients we can gauge the magnitude of the relationship and the
+                                                          model fit information provides us with information on how meaningful our model is. Again, mean often depends on context -- what you're studying.",
+                                                          style = "font-family: 'times'; font-size:14px"),
+                                                        tableOutput(outputId = "m_reg_2_model"),
+                                                        p("We can also calculate our standardized coefficients, which adjusts for our scale variability. Providing a value that is more interpretable
+                                                          between studies. This standardized value with be comparable to what we'd estimate using a partial correlation, which adjusts for a third variable.",
+                                                          style = "font-family: 'times'; font-size:14px"),
+                                                        tableOutput(outputId = "m_reg_2_std_beta"),
+                                                        p("I report the partial correlation among the variables below, which uses the ppcor package in R. You'll notice that these values will approximate
+                                                          our standardized coefficients. Given that we're using a combination of lm.beta() and pcor() functions here, the calculations will not be perfect. But it 
+                                                          nicely demonstrates how these two linear problems are related -- which is pretty cool!",
+                                                          style = "font-family: 'times'; font-size:14px"),
+                                                        tableOutput(outputId = "m_reg_2_semi_par"),
+                                                        p("To be continued...",
+                                                          style = "font-family: 'times'; font-size:14px"),
+                                                        plotOutput(outputId = "m_reg_plot_3"),
+                                                        br(),
                                                           br(),
                                                           p("Packages used - Plotting: ggplot | Linear/multiple regression via: lm() | simulating data: mvnorm() via MASS | 
                                                             Stitching ggplots via patchwork by Thomas Lin Pedersen ",
@@ -1484,6 +1548,8 @@ local_server <- function(input, output, session){
                                        mean = input$mean2,
                                        sd = input$sd2))
         
+        
+        
         grp_values <- rnorm(n = input$sample,
                             mean = c(input$grp_m1, input$grp_m2),
                             sd = c(input$grp_sd1, input$grp_sd2))
@@ -1610,7 +1676,7 @@ local_server <- function(input, output, session){
     
     ggplot(data = data_sd, aes(x = SampleSize, y = SD)) +
       geom_line()+
-      labs(title = "Fig 4. Standard deviation scaled by Sample Size for *Variable 1*", 
+      labs(title = "Fig 4. Standard deviation scaled by Sample Size for Variable 1", 
            caption = "Sample Size range: 5 to 2000 in intervals 5")+
       xlab("Sample Size")+
       ylab("Denominator: One-Sample t-test")+
@@ -2067,30 +2133,66 @@ local_server <- function(input, output, session){
     
     corr_grp_dat <- eventReactive(input$run2, {
         
-        grp1 <- data.frame(
-        mvrnorm(n = 50, # input$samp_range[2]
-                mu = c(5, 7), # means input by user
-                Sigma = matrix(c(1, .4, .4, 1), # correlation specified by user
-                               nrow = 2), 
-                empirical = TRUE)) 
+        set.seed(123)
+        n1 = 50; 
+        m1 = 5; m2 = 7; mu1 <- c(m1, m2)
+        sd1 = 2.2; sd2 = 2.5; stddev1 <- c(sd1, sd2)
+        r1 = .4
+        
+        corMat1 <- matrix(c(1, r1, 
+                           r1,1),
+                         ncol = 2)
+        
+        covMat1 <- stddev1 %*% t(stddev1) * corMat1
+        
+        grp1 <- as.data.frame(
+          mvrnorm(n = n1, 
+                  mu = mu1, 
+                  Sigma = covMat1, 
+                  empirical = TRUE))
+      
+        
         grp1$group <- 1
         
-        grp2 <- data.frame(
-        mvrnorm(n = 50, # input$samp_range[2]
-                mu = c(8, 5), # means input by user
-                Sigma = matrix(c(1, -.15, -.15, 1), # correlation specified by user
-                               nrow = 2), 
-                empirical = TRUE)) 
+        
+        m3 = 6; m4 = 2.5; mu2 <- c(m3, m4)
+        sd3 = 1.2; sd4 = .75; stddev2 <- c(sd3, sd4)
+        r2 = .3
+        
+        corMat2 <- matrix(c(1, r2, 
+                            r2,1),
+                          ncol = 2)
+        
+        covMat2 <- stddev2 %*% t(stddev2) * corMat2
+        
+        grp2 <- as.data.frame(
+          mvrnorm(n = n1, 
+                  mu = mu2, 
+                  Sigma = covMat2, 
+                  empirical = TRUE))
         grp2$group <- 2
         
-        grp3 <- data.frame(
-        mvrnorm(n = 50, # input$samp_range[2]
-                mu = c(6, 2.5), # means input by user
-                Sigma = matrix(c(1, .31, .31, 1), # correlation specified by user
-                               nrow = 2), 
-                empirical = TRUE)) 
+        m5 = 8; m6 = 4.5; mu3 <- c(m5, m6)
+        sd5 = 1.; sd6 = .5; stddev3 <- c(sd5, sd6)
+        r3 = -.15
+        
+        corMat3 <- matrix(c(1, r3, 
+                            r3,1),
+                          ncol = 2)
+        
+        covMat3 <- stddev3 %*% t(stddev3) * corMat3
+        
+        grp3 <- as.data.frame(
+          mvrnorm(n = n1, 
+                  mu = mu3, 
+                  Sigma = covMat3, 
+                  empirical = TRUE))
         grp3$group <- 3
-        data.frame(rbind(grp1, grp2, grp3))
+        
+        data <- data.frame(rbind(grp1, grp2, grp3))
+        data$X1 <- data$V1
+        data$X2 <- data$V2
+        data
     })
 
     
@@ -2517,6 +2619,30 @@ local_server <- function(input, output, session){
     
 
     ### Linear Regression
+    output$m_reg_formula_1 <- renderUI({
+      
+      eq <- eq <- paste0("Drinking = {\\beta}0 + {\\beta}1_{Reward}+ {\\epsilon}")
+      withMathJax(
+        print(paste0("$$",eq,"$$"))
+      )
+    })
+    
+    output$m_reg_calc_b0 <- renderUI({
+      
+      eq <- paste0("\\hat{\\beta}0 = {\\overline{y} - {\\hat{\\beta}1}{\\overline{x}}}")
+      withMathJax(
+        print(paste0("$$",eq,"$$"))
+      )
+    })
+    
+    output$m_reg_calc_b1 <- renderUI({
+      
+      eq <- paste0("\\hat{\\beta}1 = \\frac{\\sum{(x_i - \\overline{x})(y_i-\\overline{x})}}{\\sum{(x_i-\\overline{x})^2}}")
+      withMathJax(
+        print(paste0("$$",eq,"$$"))
+      )
+    })
+    
     output$r_sqrd <- renderUI({
       
       eq <- paste0("R^2 = {1-}\\frac{SS_{Residual}}{SS_{Total}}")
@@ -2582,19 +2708,12 @@ local_server <- function(input, output, session){
     }
     
     
-    output$m_reg_formula_1 <- renderUI({
-      fit<-lm(Drinking ~ Reward_Seek, m_reg_data()) 
-      eq <- paste0(extract_eq(fit))
-      withMathJax(
-        print(paste0("$$",eq,"$$"))
-      )
-    })
     
 
     ### Multiple Regression
     output$mult_corr <- renderUI({
       
-      eq <- paste0("r = \\frac{\\sum{(x-m_x)(y-m_y)}}{\\sqrt{\\sum{(x-m_x)^2}\\sum{(y-m_y)^2}}}")
+      eq <- paste0("r = \\frac{\\sum{(x-\\overline{x})(y-\\overline{y})}}{\\sqrt{\\sum{(x-\\overline{x})^2}\\sum{(y-\\overline{y})^2}}}")
       withMathJax(
         print(paste0("$$",eq,"$$"))
       )
@@ -2608,40 +2727,73 @@ local_server <- function(input, output, session){
       )
     })
 
+    output$m_reg_2_descr <- function(){
+      m_reg_data() %>% 
+        dplyr::summarize("N" = n(), "Drinking Mean" = mean(Drinking), "Drinking SD" = sd(Drinking), 
+                         "Reward Seek Mean" = mean(Reward_Seek), "Reward Seek SD" = sd(Reward_Seek),
+                         "Age Mean" = mean(Age), "Age SD" = sd(Age)) %>% 
+        kable(caption = "Table 4. Descriptive Statistics for Simulated Data") %>% 
+        kable_styling("striped",
+                      full_width = T, font_size = 12, html_font = 'Times')
+    }
     
-    output$m_reg_2 <- function(){
-      fit2<-lm(Drinking ~ Reward_Seek + Age, m_reg_data())
-      inter<- round(summary(fit2)$coefficients[1,1],3)
-      p1 <- summary(fit2)$coefficients[2,4]
-      beta1 <- round(summary(fit2)$coefficients[2,1],3)
-      p2 <- round(summary(fit2)$coefficients[3,4],4)
-      beta2 <- round(summary(fit2)$coefficients[3,1],3)
-      r1 <- round(summary(fit2)$r.squared,3)
-      r2 <- round(summary(fit2)$adj.r.squared,3)
-      f_stat <- round(as.numeric(summary(fit2)$fstatistic[1]),3)
-      df1 <- as.numeric(summary(fit2)$fstatistic[2])
-      df2 <- as.numeric(summary(fit2)$fstatistic[3])
+    
+    output$m_reg_2_coef <- function(){
+      fit<-lm(Drinking ~ Reward_Seek + Age, m_reg_data())
+      
+      summary(fit)$coefficients %>% 
+        kable(caption = "Table 5. Multiple Regression Coefficients", 
+              col.names = c("Estimate", "Std. Error", "T-Statistics", "p-value")) %>% 
+        kable_styling("striped",
+                      full_width = T, font_size = 12, html_font = 'Times')
+      
+    }
+    
+    output$m_reg_2_model <- function(){
+      fit<-lm(Drinking ~ Reward_Seek + Age, m_reg_data())
+      r1 <- round(summary(fit)$r.squared,3)
+      r2 <- round(summary(fit)$adj.r.squared,3)
+      f_stat <- round(as.numeric(summary(fit)$fstatistic[1]),3)
+      df1 <- as.numeric(summary(fit)$fstatistic[2])
+      df2 <- as.numeric(summary(fit)$fstatistic[3])
       model_p <- 1-pf(q = f_stat, df1 = df1, df2 = df2)
       
-      data.frame("Intercept" = c(inter,""),
-                 "Beta"= c(beta1,beta2), 
-                 "p-value"=c(p1,p2),
-                 "F-stat"=c(f_stat,""),
-                 "DF"=c(df1,df2),
-                 "Model P"=c("",model_p),
-                 "R-square"=c(r1,""),
-                 "R-adjust"=c("",r2)) %>% 
-        kable(caption = "Table 3. Linear Regression Output", 
-              col.names = c("Intercept", "Beta", "Beta p-value", "F-Statistic", "DF",
-                            "Model p-value", "R sqrd", "Adjusted r-sqrd"))%>% 
+      
+      data.frame("F-statistic" = f_stat, "df1"= df1, "df2" =df2,
+                 "p-value"= model_p,"R-squared"= r1,"R-adjust"= r2) %>% 
+        kable(caption = "Table 6. Multiple Regression Model Fit",
+              col.names = c("F-statistic", "df1", "df2", "p-value", "R squared", "adjusted R squared")) %>% 
         kable_styling("striped",
-                      full_width = F, font_size = 12, html_font = 'Times')
+                      full_width = T, font_size = 12, html_font = 'Times')
+      
+    }
+    
+    output$m_reg_2_std_beta <- function(){
+      fit<-lm(Drinking ~ Reward_Seek + Age, m_reg_data())
+      
+      round(lm.beta(fit),2) %>% 
+        kable(caption = "Table 7. Multiple Regression Standardized Coefficients (lm.beta in R)",
+              #col.names = c("Reward Seek", "Age")
+              ) %>% 
+        kable_styling("striped",
+                      full_width = T, font_size = 12, html_font = 'Times')
+      
+    }
+    
+    output$m_reg_2_semi_par <- function(){
+      p_cor <- as.data.frame(pcor(m_reg_data(), "pearson")[1])
+      round(p_cor,2) %>% 
+        kable(caption = "Table 8. Partial Pearson Correlation for Regression Variables (pcor in R)",
+              col.names = c("Drinking", "Reward_Seek", "Age")
+              ) %>% 
+        kable_styling("striped",
+                      full_width = T, font_size = 12, html_font = 'Times')
       
     }
     
     output$m_reg_formula_2 <- renderUI({
-      fit2<-lm(Drinking ~ Reward_Seek + Age, m_reg_data()) 
-      eq <- paste0(extract_eq(fit2))
+       
+      eq <- eq <- paste0("Drinking = {\\beta}0 + {\\beta}1_{Reward}+ {\\beta}2_{Age} + {\\epsilon}")
       withMathJax(
         print(paste0("$$",eq,"$$"))
       )
