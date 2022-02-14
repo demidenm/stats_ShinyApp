@@ -153,7 +153,7 @@ UserInferface <- navbarPage("Ooo, so, so shiny!",
                                                  p("For Citation & Documentation purposes, code will will be available on",
                                                    a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
                                                    style = "font-family: 'times'; font-size:10px"),
-                                                 p("© 2022 Michael Demidenko. Some rights reserved. Please contact for more details",
+                                                 p("© 2022 Michael Demidenko. Please contact for more details",
                                                    style = "font-family: 'times'; font-size:10px")
                                              )
                                      ),
@@ -250,6 +250,27 @@ UserInferface <- navbarPage("Ooo, so, so shiny!",
                                              ),
                                              tabPanel(title = "Variables", value = "variables",
                                                       h3("Variables"),
+                                                      p("Central to ever study are the data that researchers collect. Before each study, researchers define their list of variables that will
+                                                      help answer their questions and elaborate on other topics. This part of the design includes defining the cause and outcome of interest and the type of the
+                                                      design that'll help answer it. Researchers resort to experimental and/or correlation designs. Experimental designs include a manipulation of a variable that is interest to understand
+                                                      what causes an outcome. An example of this is participants receiving a treatment drug or a placebo to see how it helps with a treatment of an illness/disease. 
+                                                      Correlational designs include the natural progression/variable of variables in the population. Often experimental and correlational designs leverage a cross-sectional 
+                                                      or longitudinal approach to acquire this data.",
+                                                        style = "font-family: 'times'; font-size:16px"),
+                                                      br(),
+                                                      img(src="CrossSectional_Longitudinal.jpg", align = "center", height = '70%', width = '100%'),
+                                                      br(),
+                                                      br(),
+                                                      p(span("Cross-sectional Data:", style = "font-weight: bold"), "is a design where data are collected at a single time-point for different participants. This is the most common design. Researchers
+                                                        recruit a number of participants that span age and/or demographics and probe the cause and effect using an experimental or correlational analysis. More often than not,
+                                                        this design limits conclusions about the progression of a disease or the change of a variable across time.",
+                                                        style = "font-family: 'times'; font-size:16px"),
+                                                      p(span("Longitudinal Design:", style = "font-weight: bold"), "is a design where data are collected across time for the same participants. Whereas in the cross-sectional design participants/subjects are
+                                                        tested at a single timepoint, the longitudinal design leverages multiple waves of data collection to probe the change of disease or correlation between variables changes
+                                                        across time. A concern of longitudinal designs are how cohorts of a participants impact the change in variables, how practice impacts subsequent data collections, and most importantly which participants
+                                                        do/do not drop-out. Often, participants that go through major transitions, incur the greatest burden, or are at higher risk represent a greater proportion
+                                                        of dropout in data. This is a problem, because these participants represent the population and so are important to have them be equally represented in hypothesis testing.",
+                                                        style = "font-family: 'times'; font-size:16px"),
                                                       p(span("Independent Variable (IV):", style = "font-weight: bold"), "is the cause or our predictor of interest. 
                                                       The independent variable, or IV for short, is the variable that we suspect is contributing to an outcome in our research question.
                                                       For example, say we would like to test how much food a participant can eat until they're full. In this scenario, the IV would be
@@ -327,9 +348,10 @@ UserInferface <- navbarPage("Ooo, so, so shiny!",
                                                       ),
                                              tabPanel(title = "Coefficients/Estimates", value = "coeff_est",
                                                       h3("Coefficients/Estimates"),
-                                                      p("Each variable that we collect provides distinct", span("estimates", style = "font-style: italic"), "in the dataset. These estimates
-                                                        can be described in different ways.",
+                                                      p("Each variable that we collect provides distinct estimates that", span("represent our data.", style = "font-style: italic"), "These estimates
+                                                        can be described in different ways and are leveraged in different statistical models.",
                                                         style = "font-family: 'times'; font-size:16px"),
+                                                      br(),
                                                         p(span("Mean:", style = "font-weight: bold"), "this is the average across all of our observations. In statistics, this is
                                                         considered as one of the 'moments', or mathematical values that describe the distribution of our data. In Figure 1 (A-C), 
                                                         panel A depicts a dataset that contains 100 observations for 'var1'. If we take all of these 100 values, add them up and 
@@ -453,7 +475,9 @@ UserInferface <- navbarPage("Ooo, so, so shiny!",
                                                         style = "font-family: 'times'; font-size:16px"),
                                                       img(src="residual_ex.jpg", align = "center", height = '100%', width = '100%'),
                                                       p(span("Confidence Interval:", style = "font-weight: bold"), "this is the range for which an observed estimate in a model, like a difference between two means,
-                                                      would vary within an upper and lower bound. Typically, the 95% confidence interval (CI) is used. Say we had a sampled 100 participants, got our means
+                                                      would vary within an upper and lower bound. Typically, the 95% confidence interval (CI) is used. 
+                                                      So, across all random samples for the size of our data, 95% of those samples will have a 95% confidence interval that will contain the estimate value of our data.
+                                                      In other words, say we had a sampled 100 participants, got our means
                                                       and SD. If we were to repeatedly sample based on the sample size, mean, and SD we would get an estimate with a lower and upper bound, or our 95% CI. 
                                                       This CI is related to the p-value, as the distributions are based on sample characteristics, such as mean, SD and degrees of freedom. When the 95% CI does 
                                                       not cross zero, then the value is significant (i.e., p < .05), but if the 95% CI does cross zero, then the value is not significant (i.e. p > .05).",
@@ -482,7 +506,7 @@ UserInferface <- navbarPage("Ooo, so, so shiny!",
                                              p("For Citation & Documentation purposes, code will will be available on",
                                                a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
                                                style = "font-family: 'times'; font-size:10px"),
-                                             p("© 2022 Michael Demidenko. Some rights reserved. Please contact for more details",
+                                             p("© 2022 Michael Demidenko. Please contact for more details",
                                                style = "font-family: 'times'; font-size:10px")
                                          )
                                      ),
@@ -722,7 +746,7 @@ UserInferface <- navbarPage("Ooo, so, so shiny!",
                                                               style = "font-family: 'times'; font-size:10px"),
                                                             p("Cronbach, L. J. (1957). The two disciplines of scientific psychology. American Psychologist, 12(11), 671–684. https://doi.org/10.1037/h0043943",
                                                               style = "font-family: 'times'; font-size:10px"),
-                                                            p("Meehl, P. E. (1990). Appraising and Amending Theories: The Strategy of Lakatosian Defense and Two Principles that Warrant It. Psychological Inquiry, 1(2), 108–141. https://doi.org/10.1207/s15327965pli0102_1",
+                                                            p("Meehl, P. E. (1990). Why Summaries of Research on Psychological Theories are Often Uninterpretable. Psychological Reports, 66(1), 195-224. 10.2466/pr0.1990.66.1.195",
                                                               style = "font-family: 'times'; font-size:10px"),
                                                    ),
                                                    tabPanel(title = "Two-Sample T-test", value = "two_sample_t",
@@ -819,7 +843,7 @@ UserInferface <- navbarPage("Ooo, so, so shiny!",
                                                  p("For Citation & Documentation purposes, code will will be available on",
                                                    a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
                                                    style = "font-family: 'times'; font-size:10px"),
-                                                 p("© 2022 Michael Demidenko. Some rights reserved. Please contact for more details",
+                                                 p("© 2022 Michael Demidenko. Please contact for more details",
                                                    style = "font-family: 'times'; font-size:10px")
                                                  )
                                      )
@@ -1176,7 +1200,7 @@ tabPanel("ANOVA",
                                p("For Citation & Documentation purposes, code will will be available on",
                                  a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
                                  style = "font-family: 'times'; font-size:10px"),
-                               p("© 2022 Michael Demidenko. Some rights reserved. Please contact for more details",
+                               p("© 2022 Michael Demidenko. Please contact for more details",
                                  style = "font-family: 'times'; font-size:10px")
                                )
          )
@@ -1427,7 +1451,7 @@ tabPanel("ANOVA",
                                                              p("For Citation & Documentation purposes, code will will be available on",
                                                                a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
                                                                style = "font-family: 'times'; font-size:10px"),
-                                                             p("© 2021 Michael Demidenko. Some rights reserved. Please contact for more details",
+                                                             p("© 2021 Michael Demidenko. Please contact for more details",
                                                                style = "font-family: 'times'; font-size:10px")
                                                  )
                                              )
@@ -1448,7 +1472,7 @@ tabPanel("ANOVA",
                                                  Here the sample size is held constant, N = 1500. Using this simulated data and the specified correlation, we randomly sample a subsample from our 
                                                  1500 at intervals from 5 to 1500 and calculate the correlation between our variables. A plot is created to visually demonstrate 
                                                  how much a correlation can deviate from the a full sample correlation. Full disclosure, this tab was inspired by ",
-                                                   a("Schönbrodt & Perugini (2013).", href="https://
+                                                   a("Schönbrodt & Perugini (2013).", href="
                                                  http://www.sciencedirect.com/science/article/pii/S0092656613000858/", target="_blank"), 
                                                  " The formula here is based on the Pearson's r formula, but for comparison a Spearman rho 
                                                  is also provided. I also provide a real-world example using the publicly available National Health and Nutrition Examination Survey",
@@ -1611,7 +1635,7 @@ tabPanel("ANOVA",
                                                                       p("For Citation & Documentation purposes, code will will be available on",
                                                                         a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
                                                                         style = "font-family: 'times'; font-size:10px"),
-                                                                      p("© 2021 Michael Demidenko. Some rights reserved. Please contact for more details",
+                                                                      p("© 2021 Michael Demidenko. Please contact for more details",
                                                                         style = "font-family: 'times'; font-size:10px")
                                                                       )
                                                              )
@@ -1902,7 +1926,7 @@ tabPanel("ANOVA",
                                                            p("For Citation & Documentation purposes, code will will be available on",
                                                              a("Github", href="https://github.com/", target="_blank"), "once an initial full version is complete.",
                                                              style = "font-family: 'times'; font-size:10px"),
-                                                           p("© 2021 Michael Demidenko. Some rights reserved. Please contact for more details",
+                                                           p("© 2021 Michael Demidenko. Please contact for more details",
                                                              style = "font-family: 'times'; font-size:10px")
                                                          )
                                                      )
